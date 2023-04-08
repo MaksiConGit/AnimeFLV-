@@ -17,6 +17,7 @@ from PIL import Image
 import threading
 import atexit
 from tqdm import tqdm
+from itertools import cycle
 
 
 # Oculta la ventana de la consola
@@ -61,10 +62,13 @@ def listaanimes(): #Mostrar la lista de animes suscritos
         animesemisiontxt = animesemision.readlines()
         suscripciones = len(animesemisiontxt) // 3
 
-    print("\n\n" + Style.BRIGHT + Back.LIGHTBLACK_EX + Fore.CYAN + "Lista de animes suscritos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+    print("\n\n" + Back.WHITE + Fore.LIGHTMAGENTA_EX + "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n")
+
+    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
     for i in range(suscripciones):
-        print(Style.BRIGHT + Fore.MAGENTA + str(i + 1) + ". " + Fore.WHITE + animesemisiontxt[i * 3].strip() + " | " + Fore.LIGHTBLUE_EX + animesemisiontxt[(i * 3) + 1].strip())
+        color = next(colors)
+        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesemisiontxt[i * 3].strip() + " | " + Fore.BLUE + animesemisiontxt[(i * 3) + 1].strip())
 
     if suscripciones < 1: #Confirma si estás suscrito a algún anime
         print(Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n¡Suscríbete a uno para empezar a recibir notificaciones!")
@@ -76,10 +80,13 @@ def listavistos():
         animesvistostxt = animesvistos.readlines()
         numanimesvistos = len(animesvistostxt) // 3
 
-    print("\n\n" + Style.BRIGHT + Back.LIGHTBLACK_EX + Fore.CYAN + "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+    print("\n\n" + Style.RESET_ALL + Back.MAGENTA + Fore.LIGHTBLUE_EX + "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+
+    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
     for i in range(numanimesvistos):
-        print(Style.BRIGHT + Fore.MAGENTA + str(i + 1) + ". " + Fore.WHITE + animesvistostxt[i * 3].strip() + " | " + Fore.LIGHTBLUE_EX + animesvistostxt[(i * 3) + 1].strip())
+        color = next(colors)
+        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesvistostxt[i * 3].strip() + " | " + Fore.LIGHTBLUE_EX + animesvistostxt[(i * 3) + 1].strip())
 
     if numanimesvistos < 1: #Confirma si viste algún anime
         print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n¡Cuando finalice un anime suscrito, vendrá aquí!\nTIP: Puedes suscribirte a animes finalizados")
