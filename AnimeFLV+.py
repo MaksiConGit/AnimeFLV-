@@ -598,12 +598,67 @@ while True:
                 break
     
     elif opciones == "5":
-        listavistos()
-        input("\n\nPresione ENTER para continuar.\n")
+
+        listavistos() #Muestra la lista
+
+        inganim = "y"
+
+        while inganim == "y": #Bucle para quitar los animes que quieras
+
+            print("\n\n" + Fore.LIGHTBLACK_EX + "PARA QUITAR UN ANIME: Seleccione uno y presione ENTER." +
+                   "\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada.")
+
+            #Obtiene la información de la lista
+            with open(os.getcwd() + "\\config\\AnimesVistos.txt", "r", encoding="utf-8") as animesvistos:
+                animesvistostxt = animesvistos.readlines()
+                numanimesvistos = len(animesvistostxt) // 3
+            
+            quitaranime = input("\n")
+
+            if quitaranime == "":
+                break
+
+            confirmquitar = False
+            
+            for i in range(numanimesvistos): #Confirma si lo ingresado es un índice de su lista
+
+                if quitaranime == str(i + 1):
+
+                    confirmdesus = True
+
+            if confirmdesus == False: #Si no es un índice de la lista, se vuele a mostrar las opciones
+                continue
+
+            print("\n\n" + Style.BRIGHT + Fore.RED + "¡Quitaste a " + animesvistostxt[(int(quitaranime) - 1) * 3].strip() + " de la lista de animes vistos!")
+
+
+            #Borra la información del anime de la lista
+            animesvistostxt[(int(quitaranime) - 1) * 3] = ""
+            animesvistostxt[(int(quitaranime) - 1) * 3 + 1] = ""
+            animesvistostxt[(int(quitaranime) - 1) * 3 + 2] = ""
+
+            #Guarda los cambios
+            with open(os.getcwd() + "\\config\\AnimesVistos.txt", "wb") as animesvistos:
+                animesvistos.writelines(line.encode('utf-8') for line in animesvistostxt) 
+            
+            #Muestra la lista de animes
+            listavistos()
+
+            if suscripciones < 1: #Confirma si estás suscrito a algún anime
+                input("\n\n")
+                break
+            
+            inganim = ""
+                
+            while inganim != "y" and inganim != "n":
+
+                inganim = input("\n\n¿Desea desuscribirse a otro anime? (y/n) ")
+        
+        print()
+
 
     elif opciones == "6":
         webbrowser.open(url=urlaniflv, new=0, autoraise=True)
-
 
     elif opciones == "7":
         cerrar()
