@@ -68,7 +68,7 @@ def listaanimes(): #Mostrar la lista de animes suscritos
 
     for i in range(suscripciones):
         color = next(colors)
-        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesemisiontxt[i * 3].strip() + " | " + Fore.BLUE + animesemisiontxt[(i * 3) + 1].strip())
+        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesemisiontxt[i * 3].strip() + Style.NORMAL + Fore.YELLOW + " | " + Style.BRIGHT + Fore.BLUE + animesemisiontxt[(i * 3) + 1].strip())
 
     if suscripciones < 1: #Confirma si estás suscrito a algún anime
         print(Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n¡Suscríbete a uno para empezar a recibir notificaciones!")
@@ -86,7 +86,7 @@ def listavistos():
 
     for i in range(numanimesvistos):
         color = next(colors)
-        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesvistostxt[i * 3].strip() + " | " + Fore.LIGHTBLUE_EX + animesvistostxt[(i * 3) + 1].strip())
+        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesvistostxt[i * 3].strip() + Style.NORMAL + Fore.YELLOW + " | " + Fore.LIGHTBLUE_EX + animesvistostxt[(i * 3) + 1].strip())
 
     if numanimesvistos < 1: #Confirma si viste algún anime
         print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n¡Cuando finalice un anime suscrito, vendrá aquí!\nTIP: Puedes suscribirte a animes finalizados")
@@ -308,7 +308,7 @@ while True:
             
         while True:
 
-            print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Animes suscritos")
+            print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Animes " + Fore.CYAN + "suscritos")
 
             opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: "+ Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" + 
                     Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Suscribirse\n" + 
@@ -451,12 +451,12 @@ while True:
                         listaanimes()
                         input("\n\nPresione ENTER para continuar.\n")
                         break
+                    
+                    listaanimes()
 
                     print("\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada")
                     
-                    listaanimes()
-                    
-                    desus = input("\n\n")
+                    desus = input("\n")
 
                     if desus == "":
                         break
