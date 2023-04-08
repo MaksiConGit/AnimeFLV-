@@ -289,207 +289,221 @@ while True:
     if boolbuscar == False:
 
         opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: "+ Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" + 
-                        Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos capítulos\n" + 
-                        Fore.YELLOW + "2. " + Fore.RESET + "Suscribirse a un anime\n" + 
-                        Fore.GREEN + "3. " + Fore.RESET + "Desuscribirse a un anime\n" + 
-                            Fore.BLUE + "4. " + Fore.RESET + "Animes suscritos\n" +
-                            "5. " + "Animes finalizados\n" + 
-                            "6. " + "Abrir AnimeFLV en navegador\n" + 
-                            Fore.MAGENTA + "7. " + Fore.RESET + "Salir\n\n")
+                        Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos episodios\n" + 
+                        Fore.YELLOW + "2. " + Fore.RESET + "Animes suscritos\n" + 
+                        Fore.GREEN + "3. " + Fore.RESET + "Animes finalizados\n" + 
+                        Fore.BLUE + "4. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
+                        Fore.MAGENTA + "5. " + Fore.RESET + "Salir\n\n")
         
     boolbuscar = False
 
-    if opciones == "2": #Suscribirse
-
-        inganim = "y"
-
-        while inganim == "y":
-
-            susbool = False
-
-            print("\n\n" + Style.RESET_ALL + "Ingresar link del anime a " + Back.GREEN + "suscribirse" + Back.RESET + ": | " 
-                  + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "https://www3.animeflv.net/anime/one-piece-tv\n" 
-                  + " "*51 + "https://www3.animeflv.net/ver/one-piece-tv-1056\n" + Fore.RESET)
+    if opciones == "2":
             
-            urlnewanime = input(Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada\n\n" + Fore.RESET)
+        while True:
 
-            if urlnewanime == "":
-                break
-            
+            print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Animes suscritos")
 
-            #Comprobar si es un link de un capítulo
-            try:
-                checklink = re.findall("https://www3.animeflv.net/ver/", urlnewanime)
-                if checklink[0] == "https://www3.animeflv.net/ver/": #Tranformar el link del capítulo a link del anime
-                    urlnewanime = urlnewanime.replace("/ver/", "/anime/")
-                    checklink = urlnewanime.rfind('-')
-                    urlnewanime = urlnewanime[:checklink]
-            except:
-                None
-                
-            #Toma la información de la página
-            try:
-                newpedido = requests.get(urlnewanime, headers=headers)
+            opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: "+ Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" + 
+                    Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Suscribirse\n" + 
+                    Fore.GREEN + "2. " + Fore.RESET + "Desuscribirse\n" + 
+                    Fore.YELLOW + "3. " + Fore.RESET + "Lista de animes suscritos\n" + 
+                    Fore.RED + "4. " + Fore.RESET + "Volver\n\n")
 
-            except:
+            if opciones == "1": #Suscribirse
 
-                inganim = ""
+                inganim = "y"
 
-                print("\n\n" + Fore.RED + "Link inválido\n")
+                while inganim == "y":
 
-                while inganim != "y" and inganim != "n":
-                    inganim = input("\n¿Desea ingresar un link? (y/n) ")
+                    susbool = False
 
-                continue
-
-            newhtml = newpedido.text
-            newsoup = BeautifulSoup(newhtml, "html.parser")
-
-            #Buscar nombre del anime
-            seminewnombre = newsoup.find('h1', class_='Title')
-
-            #Buscar el número del último episodio
-            seminewcapitulo = re.findall("var episodes = \[\[[\w-]*", newhtml)
-
-            #Buscar el estado del anime
-            finalizado = newsoup.find('span', class_='fa-tv')
-
-
-            if seminewnombre == None or len(seminewcapitulo) == 0: #Comprobar si el link es de un anime de AnimeFLV
-
-                print("\n\n" + Fore.RED + "Este link no pertenece a AnimeFLV.\n")
-
-                inganim = ""
-
-                while inganim != "y" and inganim != "n":
-                    inganim = input("\n¿Desea ingresar otro link? (y/n) ")
-        
-            else:
-
-                newcapitulo = seminewcapitulo[0]
-                newcapitulo = newcapitulo.replace("var episodes = [[", "")
-
-                newnombre = seminewnombre.text
-
-                with open(txtdir, "r", encoding="utf-8") as animesemision:
-                    animesemisiontxt = animesemision.readlines()
-                    suscripciones = len(animesemisiontxt) // 3
-
-                for i in range(suscripciones): #Comprueba si ya estás suscrito
-
-                    if newnombre == animesemisiontxt[i * 3].strip():
-                        
-                        susbool = True
-                        print("\n\n" + Fore.RED + "¡Ya estabas suscrito a " + newnombre + "!")
+                    print("\n\n" + Style.RESET_ALL + "Ingresar link del anime a " + Back.GREEN + "suscribirse" + Back.RESET + ": | " 
+                        + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "https://www3.animeflv.net/anime/one-piece-tv\n" 
+                        + " "*51 + "https://www3.animeflv.net/ver/one-piece-tv-1056\n" + Fore.RESET)
                     
-                if susbool == False:
+                    urlnewanime = input(Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada\n\n" + Fore.RESET)
 
-                    newlink = urlnewanime.replace("/anime/", "/ver/")
-                    newlink = newlink + "-"
+                    if urlnewanime == "":
+                        break
+                    
 
-                #Comprobar si el anime finalizó
-                if finalizado.text == "Finalizado":
+                    #Comprobar si es un link de un capítulo
+                    try:
+                        checklink = re.findall("https://www3.animeflv.net/ver/", urlnewanime)
+                        if checklink[0] == "https://www3.animeflv.net/ver/": #Tranformar el link del capítulo a link del anime
+                            urlnewanime = urlnewanime.replace("/ver/", "/anime/")
+                            checklink = urlnewanime.rfind('-')
+                            urlnewanime = urlnewanime[:checklink]
+                    except:
+                        None
+                        
+                    #Toma la información de la página
+                    try:
+                        newpedido = requests.get(urlnewanime, headers=headers)
 
-                    with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
-                        animesvistos.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
+                    except:
 
-                    print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + newnombre + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados.")
+                        inganim = ""
+
+                        print("\n\n" + Fore.RED + "Link inválido\n")
+
+                        while inganim != "y" and inganim != "n":
+                            inganim = input("\n¿Desea ingresar un link? (y/n) ")
+
+                        continue
+
+                    newhtml = newpedido.text
+                    newsoup = BeautifulSoup(newhtml, "html.parser")
+
+                    #Buscar nombre del anime
+                    seminewnombre = newsoup.find('h1', class_='Title')
+
+                    #Buscar el número del último episodio
+                    seminewcapitulo = re.findall("var episodes = \[\[[\w-]*", newhtml)
+
+                    #Buscar el estado del anime
+                    finalizado = newsoup.find('span', class_='fa-tv')
+
+
+                    if seminewnombre == None or len(seminewcapitulo) == 0: #Comprobar si el link es de un anime de AnimeFLV
+
+                        print("\n\n" + Fore.RED + "Este link no pertenece a AnimeFLV.\n")
+
+                        inganim = ""
+
+                        while inganim != "y" and inganim != "n":
+                            inganim = input("\n¿Desea ingresar otro link? (y/n) ")
                 
-                    listavistos()
+                    else:
 
-                else:
+                        newcapitulo = seminewcapitulo[0]
+                        newcapitulo = newcapitulo.replace("var episodes = [[", "")
 
-                    #Escribir la información en un archivo
-                    with open(txtdir, 'ab') as animesemision:
-                        animesemision.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + newlink.encode('utf-8') + b"\n")
+                        newnombre = seminewnombre.text
 
-                    print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Te suscribiste a " + newnombre + "!")
+                        with open(txtdir, "r", encoding="utf-8") as animesemision:
+                            animesemisiontxt = animesemision.readlines()
+                            suscripciones = len(animesemisiontxt) // 3
 
-                    hidebool = True #Aparece la pantalla de carga al buscar animes
+                        for i in range(suscripciones): #Comprueba si ya estás suscrito
+
+                            if newnombre == animesemisiontxt[i * 3].strip():
+                                
+                                susbool = True
+                                print("\n\n" + Fore.RED + "¡Ya estabas suscrito a " + newnombre + "!")
+                            
+                        if susbool == False:
+
+                            newlink = urlnewanime.replace("/anime/", "/ver/")
+                            newlink = newlink + "-"
+
+                        #Comprobar si el anime finalizó
+                        if finalizado.text == "Finalizado":
+
+                            with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
+                                animesvistos.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
+
+                            print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + newnombre + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados.")
+                        
+                            listavistos()
+
+                        else:
+
+                            #Escribir la información en un archivo
+                            with open(txtdir, 'ab') as animesemision:
+                                animesemision.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + newlink.encode('utf-8') + b"\n")
+
+                            print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Te suscribiste a " + newnombre + "!")
+
+                            hidebool = True #Aparece la pantalla de carga al buscar animes
+                        
+                            listaanimes()
+
+                        inganim = ""
+                        
+                        while inganim != "y" and inganim != "n":
+                            inganim = input("\n\n¿Desea suscribirse a otro anime? (y/n) ")
                 
+                print()
+
+
+            elif opciones == "2": #Desuscribirse
+                
+                inganim = "y"
+
+                while inganim == "y":
+
+                    with open(txtdir, "r", encoding="utf-8") as animesemision:
+                        animesemisiontxt = animesemision.readlines()
+                        suscripciones = len(animesemisiontxt) // 3
+
+                    print("\n\n" + Style.RESET_ALL + "Selecciona el anime a " + Back.RED + Fore.WHITE + "desuscribirse" + Back.RESET + Fore.RESET + ": | " 
+                        + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
+                    
+                    if suscripciones < 1: #Confirma si estás suscrito a algún anime
+                        listaanimes()
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+
+                    print("\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada")
+                    
+                    listaanimes()
+                    
+                    desus = input("\n\n")
+
+                    if desus == "":
+                        break
+
+                    confirmdesus = False
+                    
+                    for i in range(suscripciones): #Confirma si lo ingresado es un índice de su lista
+
+                        if desus == str(i + 1):
+
+                            confirmdesus = True
+
+                    if confirmdesus == False:
+                        continue
+
+                    print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + animesemisiontxt[(int(desus) - 1) * 3].strip() + "!")
+
+
+                    #Borra la información del anime
+                    animesemisiontxt[(int(desus) - 1) * 3] = ""
+                    animesemisiontxt[(int(desus) - 1) * 3 + 1] = ""
+                    animesemisiontxt[(int(desus) - 1) * 3 + 2] = ""
+
+                    with open(txtdir, "wb") as animesemision:
+                        animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
+                    
+                    #Muestra la lista de animes
                     listaanimes()
 
-                inganim = ""
+                    if suscripciones < 1: #Confirma si estás suscrito a algún anime
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+                    
+                    inganim = ""
+                        
+                    while inganim != "y" and inganim != "n":
+
+                        inganim = input("\n\n¿Desea desuscribirse a otro anime? (y/n) ")
                 
-                while inganim != "y" and inganim != "n":
-                    inganim = input("\n\n¿Desea suscribirse a otro anime? (y/n) ")
-        
-        print()
+                print()
 
 
-    elif opciones == "3": #Desuscribirse
-        
-        inganim = "y"
+            elif opciones == "3": #Lista de animes suscritos
 
-        while inganim == "y":
-
-            with open(txtdir, "r", encoding="utf-8") as animesemision:
-                animesemisiontxt = animesemision.readlines()
-                suscripciones = len(animesemisiontxt) // 3
-
-            print("\n\n" + Style.RESET_ALL + "Selecciona el anime a " + Back.RED + Fore.WHITE + "desuscribirse" + Back.RESET + Fore.RESET + ": | " 
-                  + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
-            
-            if suscripciones < 1: #Confirma si estás suscrito a algún anime
                 listaanimes()
+
                 input("\n\nPresione ENTER para continuar.\n")
+
+            elif opciones == "4":
+                print()
                 break
 
-            print("\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada")
-            
-            listaanimes()
-            
-            desus = input("\n\n")
 
-            if desus == "":
-                break
-
-            confirmdesus = False
-            
-            for i in range(suscripciones): #Confirma si lo ingresado es un índice de su lista
-
-                if desus == str(i + 1):
-
-                    confirmdesus = True
-
-            if confirmdesus == False:
-                continue
-
-            print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + animesemisiontxt[(int(desus) - 1) * 3].strip() + "!")
-
-
-            #Borra la información del anime
-            animesemisiontxt[(int(desus) - 1) * 3] = ""
-            animesemisiontxt[(int(desus) - 1) * 3 + 1] = ""
-            animesemisiontxt[(int(desus) - 1) * 3 + 2] = ""
-
-            with open(txtdir, "wb") as animesemision:
-                animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
-            
-            #Muestra la lista de animes
-            listaanimes()
-
-            if suscripciones < 1: #Confirma si estás suscrito a algún anime
-                input("\n\nPresione ENTER para continuar.\n")
-                break
-            
-            inganim = ""
-                
-            while inganim != "y" and inganim != "n":
-
-                inganim = input("\n\n¿Desea desuscribirse a otro anime? (y/n) ")
-        
-        print()
-
-
-    elif opciones == "4": #Mostrar lista de animes suscritos
-
-        listaanimes()
-
-        input("\n\nPresione ENTER para continuar.\n")
-
-
-    elif opciones == "1": #Buscar capítulos
+    elif opciones == "1": #Buscar nuevos episodios
 
         #Confirma si estás suscrito a al menos un anime
 
@@ -597,7 +611,7 @@ while True:
                 input()
                 break
     
-    elif opciones == "5":
+    elif opciones == "3": #Animes finalizados
 
         listavistos() #Muestra la lista
 
@@ -657,8 +671,8 @@ while True:
         print()
 
 
-    elif opciones == "6":
+    elif opciones == "4": #Abrir AnimeFLV en navegador
         webbrowser.open(url=urlaniflv, new=0, autoraise=True)
 
-    elif opciones == "7":
+    elif opciones == "5": #Salir
         cerrar()
