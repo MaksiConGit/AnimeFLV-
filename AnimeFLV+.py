@@ -84,7 +84,6 @@ def listavistos():
     if numanimesvistos < 1: #Confirma si viste algún anime
         print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n¡Cuando finalice un anime suscrito, vendrá aquí!\nTIP: Puedes suscribirte a animes finalizados")
 
-    input("\n\nPresione ENTER para continuar.\n")
 
 def finalizar():
 
@@ -394,7 +393,7 @@ while True:
                     with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
                         animesvistos.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
 
-                    print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + newnombre + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
+                    print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + newnombre + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados.")
                 
                     listavistos()
 
@@ -507,7 +506,7 @@ while True:
         hidebool = True
         
         print("\n\n" + Fore.LIGHTBLACK_EX + "Presione ENTER para continuar.")
-
+        
         #Comparar información de los animes suscritos con la información de los nuevos capítulos
         
         confirm = True
@@ -547,8 +546,30 @@ while True:
                             finalizado = newsoup.find('span', class_='fa-tv')
                             
                             msgfinalizado = ""
+
+                            #Actualiza las listas
                             if finalizado.text == "Finalizado":
-                                msgfinalizado = " | Finalizado"
+
+                                msgfinalizado = " | Finalizado" #Se agrega en la notificación la finalización
+
+                                #Se actualiza la lista de animes vistos
+                                with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
+                                    animesvistos.write(nombres[x].text.encode('utf-8') + b"\n" + capitulos[x].text.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
+
+                                #Borra la información de la lista de animes suscritos
+                                animesemisiontxt[y * 3] = ""
+                                animesemisiontxt[y * 3 + 1] = ""
+                                animesemisiontxt[y * 3 + 2] = ""
+
+                                #Se actualiza la lista de animes suscritos
+                                with open(txtdir, "wb") as animesemision:
+                                    animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
+
+                                print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + nombres[x].text + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
+
+                                listavistos()
+
+                            print("\n\n" + Fore.LIGHTBLACK_EX + "Presione ENTER para continuar.")
 
                             toast = Notification(app_id="AnimeFLV+",
                                         title=nombres[x].text+ "!!", 
@@ -564,7 +585,6 @@ while True:
                             else:
                                 toast.show()
                                 playsound(sounddir)
-                                
 
             keyboard.on_press(on_key_press)
 
@@ -579,6 +599,7 @@ while True:
     
     elif opciones == "5":
         listavistos()
+        input("\n\nPresione ENTER para continuar.\n")
 
     elif opciones == "6":
         webbrowser.open(url=urlaniflv, new=0, autoraise=True)
