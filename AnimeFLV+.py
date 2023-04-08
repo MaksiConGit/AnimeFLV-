@@ -70,7 +70,6 @@ def listaanimes(): #Mostrar la lista de animes suscritos
         print(Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n¡Suscríbete a uno para empezar a recibir notificaciones!")
 
 
-
 def listavistos():
 
     with open(os.getcwd() + "\\config\\AnimesVistos.txt", "r", encoding="utf-8") as animesvistos:
@@ -84,6 +83,25 @@ def listavistos():
 
     if numanimesvistos < 1: #Confirma si viste algún anime
         print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n¡Cuando finalice un anime suscrito, vendrá aquí!\nTIP: Puedes suscribirte a animes finalizados")
+
+    input("\n\nPresione ENTER para continuar.\n")
+
+def finalizar():
+
+    with open(txtdir, "r", encoding="utf-8") as animesemision:
+        animesemisiontxt = animesemision.readlines()
+        suscripciones = len(animesemisiontxt) // 3
+
+    #Borra la información del anime
+    animesemisiontxt[(int(desus) - 1) * 3] = ""
+    animesemisiontxt[(int(desus) - 1) * 3 + 1] = ""
+    animesemisiontxt[(int(desus) - 1) * 3 + 2] = ""
+
+    with open(txtdir, "wb") as animesemision:
+        animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
+    
+    #Muestra la lista de animes
+    listaanimes()
 
 
 
@@ -275,9 +293,10 @@ while True:
                         Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos capítulos\n" + 
                         Fore.YELLOW + "2. " + Fore.RESET + "Suscribirse a un anime\n" + 
                         Fore.GREEN + "3. " + Fore.RESET + "Desuscribirse a un anime\n" + 
-                            Fore.BLUE + "4. " + Fore.RESET + "Ver lista de animes suscritos\n" +
-                            "5. " + "Abrir AnimeFLV en navegador\n" + 
-                            Fore.MAGENTA + "6. " + Fore.RESET + "Salir\n\n")
+                            Fore.BLUE + "4. " + Fore.RESET + "Animes suscritos\n" +
+                            "5. " + "Animes finalizados\n" + 
+                            "6. " + "Abrir AnimeFLV en navegador\n" + 
+                            Fore.MAGENTA + "7. " + Fore.RESET + "Salir\n\n")
         
     boolbuscar = False
 
@@ -297,6 +316,7 @@ while True:
 
             if urlnewanime == "":
                 break
+            
 
             #Comprobar si es un link de un capítulo
             try:
@@ -332,11 +352,13 @@ while True:
             #Buscar el número del último episodio
             seminewcapitulo = re.findall("var episodes = \[\[[\w-]*", newhtml)
 
-            #semifinoemi = newsoup.find('span', class_='fa-tv')
+            #Buscar el estado del anime
+            finalizado = newsoup.find('span', class_='fa-tv')
+
 
             if seminewnombre == None or len(seminewcapitulo) == 0: #Comprobar si el link es de un anime de AnimeFLV
 
-                print("\n\n" + Fore.RED + "Este link no pertenece a AnimeFLV o es un anime finalizado hace tiempo.\n")
+                print("\n\n" + Fore.RED + "Este link no pertenece a AnimeFLV.\n")
 
                 inganim = ""
 
@@ -366,16 +388,27 @@ while True:
                     newlink = urlnewanime.replace("/anime/", "/ver/")
                     newlink = newlink + "-"
 
+                #Comprobar si el anime finalizó
+                if finalizado.text == "Finalizado":
+
+                    with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
+                        animesvistos.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
+
+                    print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + newnombre + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
+                
+                    listavistos()
+
+                else:
+
                     #Escribir la información en un archivo
                     with open(txtdir, 'ab') as animesemision:
                         animesemision.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + newlink.encode('utf-8') + b"\n")
 
-
                     print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Te suscribiste a " + newnombre + "!")
 
-                    hidebool = True
+                    hidebool = True #Aparece la pantalla de carga al buscar animes
                 
-                listaanimes()
+                    listaanimes()
 
                 inganim = ""
                 
@@ -425,6 +458,8 @@ while True:
 
             print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + animesemisiontxt[(int(desus) - 1) * 3].strip() + "!")
 
+
+            #Borra la información del anime
             animesemisiontxt[(int(desus) - 1) * 3] = ""
             animesemisiontxt[(int(desus) - 1) * 3 + 1] = ""
             animesemisiontxt[(int(desus) - 1) * 3 + 2] = ""
@@ -543,10 +578,11 @@ while True:
                 break
     
     elif opciones == "5":
-        webbrowser.open(url=urlaniflv, new=0, autoraise=True)
-
-    #elif opciones == "6":
-
+        listavistos()
 
     elif opciones == "6":
+        webbrowser.open(url=urlaniflv, new=0, autoraise=True)
+
+
+    elif opciones == "7":
         cerrar()
