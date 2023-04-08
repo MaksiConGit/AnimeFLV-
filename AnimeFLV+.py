@@ -62,7 +62,7 @@ def listaanimes(): #Mostrar la lista de animes suscritos
         animesemisiontxt = animesemision.readlines()
         suscripciones = len(animesemisiontxt) // 3
 
-    print("\n\n" + Back.WHITE + Fore.LIGHTMAGENTA_EX + "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n")
+    print("\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n")
 
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
@@ -80,7 +80,7 @@ def listavistos():
         animesvistostxt = animesvistos.readlines()
         numanimesvistos = len(animesvistostxt) // 3
 
-    print("\n\n" + Style.RESET_ALL + Back.MAGENTA + Fore.LIGHTBLUE_EX + "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+    print("\n\n" + Style.RESET_ALL + Back.LIGHTWHITE_EX + Fore.LIGHTRED_EX + "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
 
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
