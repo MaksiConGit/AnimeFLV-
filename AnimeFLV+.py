@@ -21,7 +21,6 @@ from itertools import cycle
 
 
 # Oculta la ventana de la consola
-
 hidebool = False
 
 #Obtener la infomación de los nuevos capítulos
@@ -45,15 +44,16 @@ nombres = soup.find_all('strong', class_='Title')
 capitulos = soup.find_all('span', class_='Capi')
 
 
-#Creación de una lista con los nombres y el número del capítulo
+class Animes():
+    def __init__(self, urlnewanime):
+        self.nombre = None
+        self.episodio = None
+        self.link = None
+        self.estado = None
 
-#lista_concatenada = []
-
-#for i in range(len(nombres)):
- #   nombre = nombres[i].text
-  #  capitulo = capitulos[i].text
-   # texto_concatenado = nombre + ' ' + capitulo
-    #lista_concatenada.append(texto_concatenado)
+    def getInfo(urlnewnanime):
+        #Obtener información con el link
+        pass
 
 
 def listaanimes(): #Mostrar la lista de animes suscritos
@@ -74,7 +74,7 @@ def listaanimes(): #Mostrar la lista de animes suscritos
         print(Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n¡Suscríbete a uno para empezar a recibir notificaciones!")
 
 
-def listavistos():
+def listavistos(): #Mostrar la lista de animes finalizados
 
     with open(os.getcwd() + "\\config\\AnimesVistos.txt", "r", encoding="utf-8") as animesvistos:
         animesvistostxt = animesvistos.readlines()
@@ -92,7 +92,7 @@ def listavistos():
         print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n¡Cuando finalice un anime suscrito, vendrá aquí!\nTIP: Puedes suscribirte a animes finalizados")
 
 
-def finalizar():
+def finalizar(): #Actualizar información de la lista de animes finalizados
 
     with open(txtdir, "r", encoding="utf-8") as animesemision:
         animesemisiontxt = animesemision.readlines()
@@ -110,8 +110,7 @@ def finalizar():
     listaanimes()
 
 
-
-def buscaranimes():
+def buscaranimes(): #Barra de carga
         
         print(Fore.YELLOW + "\n\n¡Te notificaremos cuando se estrene un nuevo episodio!")
 
@@ -149,9 +148,7 @@ def buscaranimes():
         print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
 
 
-
-
-def on_key_press(event):
+def on_key_press(event): #Cancelar la búsqueda de capítulos
     
     if event.name == 'enter':
         keyboard.unhook_all()  # Desactiva la captura de teclas
@@ -250,7 +247,7 @@ except:
     checklogo = True
 
 
-class IconThread(threading.Thread):
+class IconThread(threading.Thread): #Creación del ícono oculto
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -267,21 +264,19 @@ class IconThread(threading.Thread):
         icon = pystray.Icon("Nombre del ícono", image, menu=menu)
         icon.run()
 
-# Creamos el objeto de subproceso para el ícono
+#Iniciamos el ícono en un hilo secundario
 icon_thread = IconThread()
-
-# Iniciamos el subproceso del ícono
 icon_thread.start()
 
 
-def cerrar():
+def cerrar(): #Terminamos el hilo secundario antes de cerrar el principal
     icon.stop()
     icon.update_menu()
     icon_thread.join()
-    icon.update_menu()
     exit()
 
 atexit.register(cerrar)
+
 
 #Obtener información del anime suscrito
 
@@ -304,7 +299,7 @@ while True:
         
     boolbuscar = False
 
-    if opciones == "2":
+    if opciones == "2": #Animes suscritos
             
         while True:
 
