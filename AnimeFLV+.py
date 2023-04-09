@@ -44,16 +44,88 @@ nombres = soup.find_all('strong', class_='Title')
 capitulos = soup.find_all('span', class_='Capi')
 
 
+global txtdir
+txtdir = os.getcwd() + "\\config\\DONTMODIFY.txt"
+
 class Animes():
-    def __init__(self, urlnewanime):
+
+    def getInfo(self, urlnewanime):
+
+        #Obtener información con el link
+        if urlnewanime == "":
+            self.animecheck = "No ingresó nada"
+            return()
+        
+        #Comprobar si es un link de un capítulo
+        try:
+            #Tranformar el link del capítulo a link del anime
+            checklink = re.findall("https://www3.animeflv.net/ver/", urlnewanime)
+            if checklink[0] == "https://www3.animeflv.net/ver/": 
+                urlnewanime = urlnewanime.replace("/ver/", "/anime/")
+                checklink = urlnewanime.rfind('-')
+                urlnewanime = urlnewanime[:checklink]
+        except:
+            None
+            
+        #Toma la información de la página
+        try:
+            pedido = requests.get(urlnewanime, headers=headers)
+
+        except:
+            self.animecheck = "Link inválido"
+            return()
+
+
+        html = pedido.text
+        newsoup = BeautifulSoup(html, "html.parser")
+
+        #Buscar nombre del anime
+        nombre = newsoup.find('h1', class_='Title')
+        self.nombre = nombre.text
+
+        #Buscar el número del último episodio
+        episodio = re.findall("var episodes = \[\[[\w-]*", html)
+        self.episodio = episodio[0].replace("var episodes = [[", "")
+
+        #Buscar el estado del anime
+        estado = newsoup.find('span', class_='fa-tv')
+        self.estado = estado.text
+
+        #Buscar el link del anime
+        urlnewanime = urlnewanime.replace("/anime/", "/ver/")
+        self.link = urlnewanime + "-"
+
+        if nombre == None or len(episodio) == 0: #Comprobar si el link es de un anime de AnimeFLV
+            self.animecheck = "Este link no pertenece a AnimeFLV"
+            return()
+    
+        else:
+
+            with open(txtdir, "r", encoding="utf-8") as animesemision:
+                animesemisiontxt = animesemision.readlines()
+                suscripciones = len(animesemisiontxt) // 3
+
+            susbool = False
+
+            for i in range(suscripciones): #Comprueba si ya estás suscrito
+
+                if self.nombre == animesemisiontxt[i * 3].strip():
+                    susbool = True
+                    self.animecheck = "Ya estabas suscrito a ", self.nombre
+
+    
+    def __init__(self):
+
+        self.animecheck = None
         self.nombre = None
         self.episodio = None
         self.link = None
         self.estado = None
 
-    def getInfo(urlnewnanime):
-        #Obtener información con el link
-        pass
+
+animes = Animes()
+animes.getInfo("https://www3.animeflv.net/anime/vinland-saga-season-2")
+animes.nombre
 
 
 def listaanimes(): #Mostrar la lista de animes suscritos
@@ -164,8 +236,7 @@ print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "
 
 checklogo = False
 
-global txtdir
-txtdir = os.getcwd() + "\\config\\DONTMODIFY.txt"
+
 global imagedir
 global sounddir
 
