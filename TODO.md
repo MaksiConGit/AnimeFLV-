@@ -6,16 +6,19 @@ Project Description
 
 ### Todo
 
-- [ ] Eliminar las variables globales  
 - [ ] Verificar si ya habías visto un anime finalizado  
+- [ ] Eliminar las variables globales  
 
 ### In Progress
 
 - [ ] Ordenar el código  
 - [ ] Crear más funciones  
+- [ ] Dividir la función "comprobar_confirguración" en dos funciones  
 
 ### Done ✓
 
 - [x] Ordenar opción 1  
 - [x] Ordenar opción 3, 4 y 5  
+- [x] Crear función "nuevos_capitulos"  
+- [x] Ordenar funciones  
 

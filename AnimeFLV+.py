@@ -21,116 +21,195 @@ from itertools import cycle
 import sys
 
 
-# Obtener la infomación de los nuevos capítulos
-
-URLANIMEFLV = 'https://www3.animeflv.net/'
-
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-    'AppleWebKit/537.36 (KHTML, like Gecko)'
-    'Chrome/58.0.3029.110 Safari/537.3'
-}
-
-pedido = requests.get(URLANIMEFLV, headers=HEADERS, timeout=5)
-
-if pedido.status_code != 200:
-    print(Fore.RED + "La página de AnimeFLV está caída, inténtelo más tarde")
-
-html = pedido.text
-
-soup = BeautifulSoup(html, "html.parser")
-
-nombres = soup.find_all('strong', class_='Title')
-capitulos = soup.find_all('span', class_='Capi')
-
-
-SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
-SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
-
-
-# Obtiene los atributos del anime
-class Anime():
-
+def comprobar_configuracion():
     """
-    Descripción de la clase
-
-    Tiene las características de un anime
+    Comprueba si el usurio ya configuró el script,
+    si no lo hizo, lo configura. También ordena
+    la carpeta para evitar errores.
     """
 
-    def get_info(self, urlnewanime):  # Obtener información a partir del link
-        """
-        Extrae la información del anime
-        """
+    try:
+        with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
+            seen_animes_txt = seen_animes.readlines()
+            suscripciones = len(seen_animes_txt) // 3
 
-        if urlnewanime == "":
-            self.animecheck = "No ingresó nada"
-            return
+        for filename in os.listdir(os.getcwd() + "\\config\\"):
 
-        # Comprobar si es un link de un capítulo, si lo es, lo tranforma al
-        # link de la página del anime
-        if "https://www3.animeflv.net/ver/" in urlnewanime:
-            urlnewanime = urlnewanime.replace("/ver/", "/anime/")
-            checklink = urlnewanime.rfind('-')
-            urlnewanime = urlnewanime[:checklink]
+            name, extension = os.path.splitext(
+                os.getcwd() + "\\config\\" + filename)
 
-        # Toma la información de la página
+            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+                imagedir = os.getcwd() + "\\config\\" + "Image" + extension
+                os.rename(os.getcwd() + "\\config\\" + filename, imagedir)
+
+            if extension in [".mp3", ".wav"]:
+                sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
+                os.rename(os.getcwd() + "\\config\\" + filename, sound_dir)
+
+        if suscripciones >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
+
+            lista_animes_suscritos()
+            barra_de_carga()
+
+            # No se muestran las opciones
+            # Selecciona la opción "Buscar nuevos episodios"
+
+            return False, "1"
+
+        return True, None
+
+    # El usuario configura las notificaciones
+    except OSError:
+
+        print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
+
+        input("\n\nPrimero que nada, vamos a personalizar el programa"
+              "para que tengas una experiencia única."
+              "\n\nPresione ENTER para continuar.")
+
+        print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
+        print("\n\nEsta imagen se mostrará junto con"
+              "el nombre del anime y el número del nuevo capítulo.")
+
+        input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
+              "\n\n2. Pega esa imagen en la carpeta del programa."
+              "\n\n3. Presione ENTER cuando esté listo.")
+
+        print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
+        print("\n\nEste sonido debe ser corto, puede ser una parte de "
+              "una canción o un simple sonido de notificación.")
+        print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
+              "\n\n2. Pega ese sonido en la carpeta del programa."
+              "\n\n3. Presione ENTER cuando esté listo.")
+        print("\n\nIMPORTANTE:\n\n"
+              "Si desea el sonido de notificación predeterminado de Windows, "
+              "no haga ningún cambio, únicamente presione ENTER.\n")
+
+        input()
+
+        # Se crea la carpeta
         try:
-            pedido = requests.get(urlnewanime, headers=HEADERS, timeout=5)
+            os.makedirs("config")
+        except OSError:
+            None
 
-        except requests.exceptions.InvalidURL:
-            self.animecheck = "Link inválido"
-            return
+        # Mueve los archivos nuevos a la nueva carpeta "config"
+        for filename in os.listdir(os.getcwd()):
 
-        html = pedido.text
-        newsoup = BeautifulSoup(html, "html.parser")
+            name, extension = os.path.splitext(os.getcwd() + filename)
 
-        # Buscar nombre del anime
-        nombre = newsoup.find('h1', class_='Title')
+            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+                imagedir = os.getcwd() + "\\config\\" + "Image" + extension
+                os.rename(os.getcwd() + "\\" + filename, imagedir)
 
-        # Buscar el número del último episodio
-        episodio = re.findall("var episodes = \[\[[\w-]*", html)
+            elif extension in [".mp3", ".wav"]:
+                sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
+                os.rename(os.getcwd() + "\\" + filename, sound_dir)
 
-        # Buscar el estado del anime
-        estado = newsoup.find('span', class_='fa-tv')
+        # Crea el .txt de los animes suscritos
+        with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
+            None
 
-        # Buscar el link del anime
-        urlnewanime = urlnewanime.replace("/anime/", "/ver/")
+    check_bienvenido = True  # Confirma que ya se mostró el "Bienvenido a"
 
-        # Comprobar si el link es de un anime de AnimeFLV
-        if nombre is None or len(episodio) == 0:
-            self.animecheck = "Este link no pertenece a AnimeFLV"
-            return
 
-        else:
+def nuevos_capitulos():
+    """
+    Descripción de la función:
 
-            # Le damos el valor a todas los atributos
-            self.nombre = nombre.text
-            self.episodio = episodio[0].replace("var episodes = [[", "")
-            self.estado = estado.text
-            self.link = urlnewanime + "-"
+    Obtiene la información de los nuevos capítulos
+    de la página AnimeFLV
+    """
 
-            with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-                seen_animes_txt = seen_animes.readlines()
-                suscripciones = len(seen_animes_txt) // 3
+    url_anime_flv = 'https://www3.animeflv.net/'
 
-            for indice in range(suscripciones):  # Comprueba si ya estás suscrito
-                # Índice * 3 es igual al nombre
-                if nombre.text == seen_animes_txt[indice * 3].strip():
-                    self.animecheck = "Ya estabas suscrito a este anime"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        'AppleWebKit/537.36 (KHTML, like Gecko)'
+        'Chrome/58.0.3029.110 Safari/537.3'
+    }
 
-    def __init__(self):  # Inicializa la clase con sus atributos
-        """
-        Descripción del método
+    pedido = requests.get(url_anime_flv, headers=headers, timeout=5)
 
-        Se inicializa la clase y se declaran los atributos
-        del anime.
-        """
+    if pedido.status_code != 200:
+        print(Fore.RED + "La página de AnimeFLV está caída, inténtelo más tarde")
 
-        self.animecheck = None
-        self.nombre = None
-        self.episodio = None
-        self.link = None
-        self.estado = None
+    html = pedido.text
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    nombres = soup.find_all('strong', class_='Title')
+    capitulos = soup.find_all('span', class_='Capi')
+
+    return nombres, capitulos
+
+
+def barra_de_carga():
+    """
+    Descripción de la función:
+
+    Antes de empezar a buscar nuevos capítulos
+    de los animes suscritos, se informará al
+    usuario que se le notificará cuando esto pase,
+    además de darle instrucciones para volver 
+    a abrir la consola si se desea.
+    Paralelamente, se muestra una barra de carga
+    que indica cuánto falta para ocultar la consola.
+    """
+
+    print(Fore.YELLOW + "\n\n¡Te notificaremos cuando se estrene un nuevo episodio!\n\n"
+          "La consola se esconderá en unos segundos...\n\n"
+          "Consulta el ícono oculto para mostrar la consola.\n\n")
+
+    def progress_bar(progress, total):
+
+        percent = 100 * (progress/float(total))
+
+        if percent > 75.0:
+            barra_cargando = Fore.MAGENTA + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        elif percent > 50.0:
+            barra_cargando = Fore.BLUE + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        elif percent > 25:
+            barra_cargando = Fore.GREEN + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        elif percent >= 0:
+            barra_cargando = Fore.YELLOW + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        print(f"\r|{barra_cargando}| {percent:.2f}%", end="\r")
+
+    progress_bar(0, 100)
+    for porcentaje_de_barra in range(100):
+        time.sleep(0.07)
+        progress_bar(porcentaje_de_barra + 1, 100)
+
+    win32gui.ShowWindow(win32console.GetConsoleWindow(),
+                        win32con.SW_HIDE)  # Esconder la consola
+
+    os.system("cls")  # Limpiar la terminal
+
+    print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
+          "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
+
+
+def on_key_press(event):
+    """
+    Descripción de la función:
+
+    Cancela la búsqueda de capítulos mediante
+    la captura de la tecla "enter".
+    """
+
+    if event.name == 'enter':
+        keyboard.unhook_all()  # Desactiva la captura de teclas
+        print("\n" + Fore.LIGHTBLACK_EX + "Espere...")
+        global confirm
+        confirm = False
 
 
 def lista_animes_suscritos():
@@ -254,72 +333,87 @@ def borrar_anime_finalizado(ID):
     return msg_finalizado
 
 
-def barra_de_carga():
-    """
-    Descripción de la función:
+class Anime():
 
-    Antes de empezar a buscar nuevos capítulos
-    de los animes suscritos, se informará al
-    usuario que se le notificará cuando esto pase,
-    además de darle instrucciones para volver 
-    a abrir la consola si se desea.
-    Paralelamente, se muestra una barra de carga
-    que indica cuánto falta para ocultar la consola.
+    """
+    Descripción de la clase:
+
+    Tiene las características de un anime:
+    nombre, episodio, estado y link.
     """
 
-    print(Fore.YELLOW + "\n\n¡Te notificaremos cuando se estrene un nuevo episodio!\n\n"
-          "La consola se esconderá en unos segundos...\n\n"
-          "Consulta el ícono oculto para mostrar la consola.\n\n")
+    def get_info(self, urlnewanime):  # Obtener información a partir del link
+        """
+        Extrae la información del anime
+        """
 
-    def progress_bar(progress, total):
+        if urlnewanime == "":
+            self.animecheck = "No ingresó nada"
+            return
 
-        percent = 100 * (progress/float(total))
+        # Comprobar si es un link de un capítulo, si lo es, lo tranforma al
+        # link de la página del anime
+        if "https://www3.animeflv.net/ver/" in urlnewanime:
+            urlnewanime = urlnewanime.replace("/ver/", "/anime/")
+            checklink = urlnewanime.rfind('-')
+            urlnewanime = urlnewanime[:checklink]
 
-        if percent > 75.0:
-            barra_cargando = Fore.MAGENTA + "█" * \
-                int(percent) + "-" * (100 - int(percent))
+        # Toma la información de la página
+        try:
+            pedido = requests.get(urlnewanime, headers=HEADERS, timeout=5)
 
-        elif percent > 50.0:
-            barra_cargando = Fore.BLUE + "█" * \
-                int(percent) + "-" * (100 - int(percent))
+        except requests.exceptions.InvalidURL:
+            self.animecheck = "Link inválido"
+            return
 
-        elif percent > 25:
-            barra_cargando = Fore.GREEN + "█" * \
-                int(percent) + "-" * (100 - int(percent))
+        html = pedido.text
+        newsoup = BeautifulSoup(html, "html.parser")
 
-        elif percent >= 0:
-            barra_cargando = Fore.YELLOW + "█" * \
-                int(percent) + "-" * (100 - int(percent))
+        # Buscar nombre del anime
+        nombre = newsoup.find('h1', class_='Title')
 
-        print(f"\r|{barra_cargando}| {percent:.2f}%", end="\r")
+        # Buscar el número del último episodio
+        episodio = re.findall("var episodes = \[\[[\w-]*", html)
 
-    progress_bar(0, 100)
-    for porcentaje_de_barra in range(100):
-        time.sleep(0.07)
-        progress_bar(porcentaje_de_barra + 1, 100)
+        # Buscar el estado del anime
+        estado = newsoup.find('span', class_='fa-tv')
 
-    win32gui.ShowWindow(win32console.GetConsoleWindow(),
-                        win32con.SW_HIDE)  # Esconder la consola
+        # Buscar el link del anime
+        urlnewanime = urlnewanime.replace("/anime/", "/ver/")
 
-    os.system("cls")  # Limpiar la terminal
+        # Comprobar si el link es de un anime de AnimeFLV
+        if nombre is None or len(episodio) == 0:
+            self.animecheck = "Este link no pertenece a AnimeFLV"
+            return
 
-    print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
-          "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
+        # Le damos el valor a todas los atributos
+        self.nombre = nombre.text
+        self.episodio = episodio[0].replace("var episodes = [[", "")
+        self.estado = estado.text
+        self.link = urlnewanime + "-"
 
+        with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
+            seen_animes_txt = seen_animes.readlines()
+            suscripciones = len(seen_animes_txt) // 3
 
-def on_key_press(event):  # Cancelar la búsqueda de capítulos
-    """
-    Descripción de la función:
+        for indice in range(suscripciones):  # Comprueba si ya estás suscrito
+            # Índice * 3 es igual al nombre
+            if nombre.text == seen_animes_txt[indice * 3].strip():
+                self.animecheck = "Ya estabas suscrito a este anime"
 
-    Cancela la búsqueda de capítulos mediante
-    la captura de la tecla "enter".
-    """
+    def __init__(self):  # Inicializa la clase con sus atributos
+        """
+        Descripción del método
 
-    if event.name == 'enter':
-        keyboard.unhook_all()  # Desactiva la captura de teclas
-        print("\n" + Fore.LIGHTBLACK_EX + "Espere...")
-        global confirm
-        confirm = False
+        Se inicializa la clase y se declaran los atributos
+        del anime.
+        """
+
+        self.animecheck = None
+        self.nombre = None
+        self.episodio = None
+        self.link = None
+        self.estado = None
 
 
 colorama.init(autoreset=True)
@@ -328,95 +422,14 @@ colorama.init(autoreset=True)
 print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
       "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
 
-# Declarar directorios globales
+# Declararciones
 global imagedir
 global sound_dir
+SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
+SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
 
-checkbienvenido = False  # Control del "Bienvenido a", se muestra por defecto
-mostraropciones = True  # Control de aparación de las opciones en la primera búsqueda
-
-
-# Comprueba si el usurio ya configuró el script y lo ordena para evitar errores
-try:
-
-    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-        seen_animes_txt = seen_animes.readlines()
-        suscripciones = len(seen_animes_txt) // 3
-
-    for filename in os.listdir(os.getcwd() + "\\config\\"):
-
-        name, extension = os.path.splitext(
-            os.getcwd() + "\\config\\" + filename)
-
-        if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-            imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-            os.rename(os.getcwd() + "\\config\\" + filename, imagedir)
-
-        if extension in [".mp3", ".wav"]:
-            sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
-            os.rename(os.getcwd() + "\\config\\" + filename, sound_dir)
-
-    if suscripciones >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
-
-        lista_animes_suscritos()
-        barra_de_carga()
-
-        mostraropciones = False  # No se muestran las opciones
-        opciones = "1"  # Selecciona la opción "Buscar nuevos episodios"
-
-# El usuario configura las notificaciones
-except OSError:
-
-    print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
-
-    input("\n\nPrimero que nada, vamos a personalizar el programa"
-          "para que tengas una experiencia única."
-          "\n\nPresione ENTER para continuar.")
-
-    print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
-    print("\n\nEsta imagen se mostrará junto con"
-          "el nombre del anime y el número del nuevo capítulo.")
-
-    input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
-          "\n\n2. Pega esa imagen en la carpeta del programa."
-          "\n\n3. Presione ENTER cuando esté listo.")
-
-    print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
-    print("\n\nEste sonido debe ser corto, puede ser una parte de "
-          "una canción o un simple sonido de notificación.")
-    print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
-          "\n\n2. Pega ese sonido en la carpeta del programa."
-          "\n\n3. Presione ENTER cuando esté listo.")
-    print("\n\nIMPORTANTE:\n\n"
-          "Si desea el sonido de notificación predeterminado de Windows, "
-          "no haga ningún cambio, únicamente presione ENTER.\n")
-
-    input()
-
-    # Se crea la carpeta
-    try:
-        os.makedirs("config")
-    except OSError:
-        None
-
-    # Mueve los archivos nuevos a la nueva carpeta "config"
-    for filename in os.listdir(os.getcwd()):
-
-        name, extension = os.path.splitext(os.getcwd() + filename)
-
-        if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-            imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-            os.rename(os.getcwd() + "\\" + filename, imagedir)
-
-        elif extension in [".mp3", ".wav"]:
-            sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
-            os.rename(os.getcwd() + "\\" + filename, sound_dir)
-
-    # Crea el .txt de los animes suscritos
-    with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
-        None
-
-    checkbienvenido = True  # Confirma que ya se mostró el "Bienvenido a"
+check_bienvenido = False  # Control del "Bienvenido a", se muestra por defecto
+mostrar_opciones = True  # Control de aparación de las opciones en la primera búsqueda
 
 
 class IconThread(threading.Thread):  # Creación del ícono oculto
@@ -473,14 +486,18 @@ atexit.register(cerrar)
 
 while True:
 
-    if checkbienvenido is True:  # Comprobar si ya se mostró el "Bienvenido a"
+    comprobar_configuracion()
+
+    # Mostrar las opciones
+
+    if check_bienvenido is True:  # Comprobar si ya se mostró el "Bienvenido a"
 
         print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
               "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
 
-    checkbienvenido = True  # Confirma que ya se mostró el "Bienvenido a"
+    check_bienvenido = True  # Confirma que ya se mostró el "Bienvenido a"
 
-    if mostraropciones is True:
+    if mostrar_opciones is True:
 
         opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: " + Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" +
                          Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos episodios\n" +
@@ -489,7 +506,7 @@ while True:
                          Fore.BLUE + "4. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
                          Fore.MAGENTA + "5. " + Fore.RESET + "Salir\n\n")
 
-    mostraropciones = True
+    mostrar_opciones = True
 
     if opciones == "2":  # Animes suscritos
 
@@ -693,6 +710,8 @@ while True:
 
         while True:
 
+            nombres, capitulos = nuevos_capitulos()
+
             with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
                 seen_animes_txt = seen_animes.readlines()
                 suscripciones = len(seen_animes_txt) // 3
@@ -822,7 +841,8 @@ while True:
         print()
 
     elif opciones == "4":  # Abrir AnimeFLV en navegador
-        webbrowser.open(url=URLANIMEFLV, new=0, autoraise=True)
+        webbrowser.open(url="https://www3.animeflv.net/",
+                        new=0, autoraise=True)
 
     elif opciones == "5":  # Salir
         cerrar()
