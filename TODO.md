@@ -6,6 +6,9 @@ Project Description
 
 ### Todo
 
+- [ ] Ordenar opción 3, 4 y 5  
+- [ ] Crear más funciones  
+- [ ] Eliminar las variables globales  
 - [ ] Verificar si ya habías visto un anime finalizado  
 
 ### In Progress
@@ -14,4 +17,5 @@ Project Description
 
 ### Done ✓
 
+- [x] Ordenar opción 1  
 
