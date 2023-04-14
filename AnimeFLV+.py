@@ -21,96 +21,88 @@ from itertools import cycle
 import sys
 
 
-def comprobar_configuracion():
+def comprobar_suscripciones():
     """
-    Comprueba si el usurio ya configuró el script,
-    si no lo hizo, lo configura. También ordena
-    la carpeta para evitar errores.
+    Comprueba si estás suscrito a al menos
+    un anime para empezar a buscar episodios
+    automáticamente. Retorna valores que
+    pueden mostrar o no las opciones.
     """
 
-    try:
-        with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-            seen_animes_txt = seen_animes.readlines()
-            suscripciones = len(seen_animes_txt) // 3
+    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
+        seen_animes_txt = seen_animes.readlines()
+        suscripciones = len(seen_animes_txt) // 3
 
-        for filename in os.listdir(os.getcwd() + "\\config\\"):
+    if suscripciones >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
 
-            name, extension = os.path.splitext(
-                os.getcwd() + "\\config\\" + filename)
+        lista_animes_suscritos()
+        barra_de_carga()
 
-            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-                imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-                os.rename(os.getcwd() + "\\config\\" + filename, imagedir)
+        return False, "1"
+    
+    return True, None
 
-            if extension in [".mp3", ".wav"]:
-                sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
-                os.rename(os.getcwd() + "\\config\\" + filename, sound_dir)
 
-        if suscripciones >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
+def configurar_notificaciones():
+    """
+    El usuario configura el script. Se crea
+    una carpeta y se mueven el sonido y la
+    imagen a la misma, también se crean los
+    .txt en esta carpeta para ordenar todo.
+    Retorna True para no volver a mostrar el
+    "Bienvenido a".
+    """
 
-            lista_animes_suscritos()
-            barra_de_carga()
+    print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
 
-            # No se muestran las opciones
-            # Selecciona la opción "Buscar nuevos episodios"
+    input("\n\nPrimero que nada, vamos a personalizar el programa"
+            " para que tengas una experiencia única."
+            "\n\nPresione ENTER para continuar.")
 
-            return False, "1"
+    print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
+    print("\n\nEsta imagen se mostrará junto con"
+            "el nombre del anime y el número del nuevo capítulo.")
 
-        return True, None
+    input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
+            "\n\n2. Pega esa imagen en la carpeta del programa."
+            "\n\n3. Presione ENTER cuando esté listo.")
 
-    # El usuario configura las notificaciones
-    except OSError:
+    print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
+    print("\n\nEste sonido debe ser corto, puede ser una parte de "
+            "una canción o un simple sonido de notificación.")
+    print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
+            "\n\n2. Pega ese sonido en la carpeta del programa."
+            "\n\n3. Presione ENTER cuando esté listo.")
+    print("\n\nIMPORTANTE:\n\n"
+            "Si desea el sonido de notificación predeterminado de Windows, "
+            "no haga ningún cambio, únicamente presione ENTER.\n")
 
-        print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
+    input()
 
-        input("\n\nPrimero que nada, vamos a personalizar el programa"
-              "para que tengas una experiencia única."
-              "\n\nPresione ENTER para continuar.")
 
-        print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
-        print("\n\nEsta imagen se mostrará junto con"
-              "el nombre del anime y el número del nuevo capítulo.")
+    # Se crea la carpeta
+    if not os.path.exists(os.getcwd() + "\\config\\"):
+        os.makedirs("config")
 
-        input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
-              "\n\n2. Pega esa imagen en la carpeta del programa."
-              "\n\n3. Presione ENTER cuando esté listo.")
 
-        print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
-        print("\n\nEste sonido debe ser corto, puede ser una parte de "
-              "una canción o un simple sonido de notificación.")
-        print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
-              "\n\n2. Pega ese sonido en la carpeta del programa."
-              "\n\n3. Presione ENTER cuando esté listo.")
-        print("\n\nIMPORTANTE:\n\n"
-              "Si desea el sonido de notificación predeterminado de Windows, "
-              "no haga ningún cambio, únicamente presione ENTER.\n")
+    # Mueve la imagen y el sonido a la nueva carpeta
+    for filename in os.listdir(os.getcwd()):
 
-        input()
+        name, extension = os.path.splitext(os.getcwd() + filename)
 
-        # Se crea la carpeta
-        try:
-            os.makedirs("config")
-        except OSError:
-            None
+        if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+            imagedir = os.getcwd() + "\\config\\" + "Image" + extension
+            os.rename(os.getcwd() + "\\" + filename, imagedir)
 
-        # Mueve los archivos nuevos a la nueva carpeta "config"
-        for filename in os.listdir(os.getcwd()):
+        elif extension in [".mp3", ".wav"]:
+            sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
+            os.rename(os.getcwd() + "\\" + filename, sound_dir)
 
-            name, extension = os.path.splitext(os.getcwd() + filename)
+    # Crea el .txt de los animes suscritos
+    with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
+        pass
 
-            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-                imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-                os.rename(os.getcwd() + "\\" + filename, imagedir)
-
-            elif extension in [".mp3", ".wav"]:
-                sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
-                os.rename(os.getcwd() + "\\" + filename, sound_dir)
-
-        # Crea el .txt de los animes suscritos
-        with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
-            None
-
-    check_bienvenido = True  # Confirma que ya se mostró el "Bienvenido a"
+    return True  # Confirma que ya se mostró el "Bienvenido a"
 
 
 def nuevos_capitulos():
@@ -333,6 +325,20 @@ def borrar_anime_finalizado(ID):
     return msg_finalizado
 
 
+def cerrar_script():
+    """
+    Descripción de la función:
+
+    Terminamos el hilo secundario antes de
+    cerrar el hilo principal.
+    """
+
+    icon.stop()
+    icon.update_menu()
+    icon_thread.join()
+    sys.exit()
+
+
 class Anime():
 
     """
@@ -416,23 +422,7 @@ class Anime():
         self.estado = None
 
 
-colorama.init(autoreset=True)
-
-
-print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
-      "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
-
-# Declararciones
-global imagedir
-global sound_dir
-SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
-SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
-
-check_bienvenido = False  # Control del "Bienvenido a", se muestra por defecto
-mostrar_opciones = True  # Control de aparación de las opciones en la primera búsqueda
-
-
-class IconThread(threading.Thread):  # Creación del ícono oculto
+class IconThread(threading.Thread):
 
     """
     Descripción de la clase:
@@ -464,29 +454,40 @@ icon_thread = IconThread()
 icon_thread.start()
 
 
-def cerrar():  # Terminamos el hilo secundario antes de cerrar el principal
-    """
-    Descripción de la función:
+# Declararciones
+global imagedir
+global sound_dir
+SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
+SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
 
-    Terminamos el hilo secundario antes de
-    cerrar el hilo principal.
-    """
-
-    icon.stop()
-    icon.update_menu()
-    icon_thread.join()
-    sys.exit()
+check_bienvenido = False  # Control del "Bienvenido a", se muestra por defecto
+mostrar_opciones = True  # Control de aparación de las opciones en la primera búsqueda
 
 
-# Antes de cerrar el programa, se ejecuta esta línea
-atexit.register(cerrar)
+# Antes de cerrar el script
+# atexit.register(cerrar_script)
+
+
+colorama.init(autoreset=True)
+
+
+print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
+      "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
+
+
+# Comprueba si ya se configuró el script
+if os.path.exists(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"):
+
+    mostrar_opciones, opciones = comprobar_suscripciones()
+
+else:
+
+    check_bienvenido = configurar_notificaciones()
 
 
 # Obtener información del anime suscrito
 
 while True:
-
-    comprobar_configuracion()
 
     # Mostrar las opciones
 
