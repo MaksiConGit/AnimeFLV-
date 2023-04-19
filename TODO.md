@@ -13,12 +13,14 @@ Project Description
 - [ ] Crear índice para los animes de las listas a través de enumerate()  
 - [ ] Modificar cómo se agregan y borran las líneas de las listas con lo aprendido en el curso  
 - [ ] Verificar si ya habías visto un anime finalizado  
-- [ ] Eliminar las variables globales  
 
 ### In Progress
 
 - [ ] Ordenar el código  
 - [ ] Crear más funciones  
+- [ ] Correciones funcionales  
+- [ ] Eliminar las variables globales  
+- [ ] Obtener el directorio del sonido y la imagen de la notificación  
 
 ### Done ✓
 

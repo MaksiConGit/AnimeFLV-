@@ -88,8 +88,8 @@ def configurar_notificaciones():
         name, extension = os.path.splitext(os.getcwd() + filename)
 
         if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-            imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-            os.rename(os.getcwd() + "\\" + filename, imagedir)
+            image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+            os.rename(os.getcwd() + "\\" + filename, image_dir)
 
         elif extension in [".mp3", ".wav"]:
             sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
@@ -293,8 +293,13 @@ def borrar_anime_finalizado(ID):
     url_anime_subs = url_anime_subs[:clean_url]
 
     # Toma la información de la página
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        'AppleWebKit/537.36 (KHTML, like Gecko)'
+        'Chrome/58.0.3029.110 Safari/537.3'
+    }
     anime_subs_pedido = requests.get(
-        url_anime_subs, headers=HEADERS, timeout=5)
+    url_anime_subs, headers=headers, timeout=5)
     anime_subs_html = anime_subs_pedido.text
     anime_subs_soup = BeautifulSoup(anime_subs_html, "html.parser")
     anime_susbs_estado = anime_subs_soup.find('span', class_='fa-tv')
@@ -469,8 +474,6 @@ icon_thread.start()
 
 
 # Declararciones
-global imagedir
-global sound_dir
 SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
 SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
 
@@ -497,6 +500,17 @@ if os.path.exists(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"):
 else:
 
     check_bienvenido = configurar_notificaciones()
+
+# Comprueba el directorio de la imagen y el sonido
+for filename in os.listdir(os.getcwd() + "\\config\\"):
+
+    name, extension = os.path.splitext(os.getcwd() + "\\config\\" + filename)
+
+    if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+        image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+
+    elif extension in [".mp3", ".wav"]:
+        sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
 
 
 # Obtener información del anime suscrito
@@ -781,7 +795,7 @@ while True:
                                                  title=nombres[x].text + "!!",
                                                  msg=capitulos[x].text +
                                                  MSG_ESTADO,
-                                                 icon=imagedir,
+                                                 icon=image_dir,
                                                  duration="short",
                                                  launch=ulti_cap_link
                                                  )
@@ -877,4 +891,4 @@ while True:
                         new=0, autoraise=True)
 
     elif opciones == "5":  # Salir
-        cerrar()
+        cerrar_script()
