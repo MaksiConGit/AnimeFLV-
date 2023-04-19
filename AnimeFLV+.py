@@ -639,57 +639,56 @@ while True:
 
                 while ingresar_anime == "y":
 
-                    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-                        seen_animes_txt = seen_animes.readlines()
-                        suscripciones = len(seen_animes_txt) // 3
-
                     print("\n\n" + Style.RESET_ALL + "Selecciona el anime a " +
                           Back.RED + Fore.WHITE + "desuscribirse" + Back.RESET + Fore.RESET + ": | "
                           + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
 
-                    if suscripciones < 1:  # Confirma si estás suscrito a algún anime
-                        lista_animes_suscritos()
+                    animes_suscritos = lista_animes_suscritos()
+
+                    if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
                         input("\n\nPresione ENTER para continuar.\n")
                         break
-
-                    lista_animes_suscritos()
 
                     print("\n" + Fore.LIGHTBLACK_EX +
                           "PARA CANCELAR: Presione ENTER sin ingresar nada")
 
-                    desus = input("\n")
+                    desuscripcion = input("\n")
 
-                    if desus == "":
+                    if desuscripcion == "":
                         break
 
-                    confirmdesus = False
+                    CONFIRMAR_DESUSCRIPCION = False
 
                     # Confirma si lo ingresado es un índice de su lista
-                    for i in range(suscripciones):
+                    for i in range(animes_suscritos):
 
-                        if desus == str(i + 1):
+                        if desuscripcion == str(i + 1):
 
-                            confirmdesus = True
+                            CONFIRMAR_DESUSCRIPCION = True
 
-                    if confirmdesus == False:
+                    if CONFIRMAR_DESUSCRIPCION is False:
                         continue
 
+                    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
+                        seen_animes_txt = seen_animes.readlines()
+
                     print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " +
-                          seen_animes_txt[(int(desus) - 1) * 3].strip() + "!")
+                          seen_animes_txt[(int(desuscripcion) - 1) * 3].strip() + "!")
 
                     # Borra la información del anime
-                    seen_animes_txt[(int(desus) - 1) * 3] = ""
-                    seen_animes_txt[(int(desus) - 1) * 3 + 1] = ""
-                    seen_animes_txt[(int(desus) - 1) * 3 + 2] = ""
+                    seen_animes_txt[(int(desuscripcion) - 1) * 3] = ""
+                    seen_animes_txt[(int(desuscripcion) - 1) * 3 + 1] = ""
+                    seen_animes_txt[(int(desuscripcion) - 1) * 3 + 2] = ""
 
+                    # Actualiza la información del bloc de notas
                     with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
                         seen_animes.writelines(line.encode(
                             'utf-8') for line in seen_animes_txt)
 
                     # Muestra la lista de animes
-                    lista_animes_suscritos()
+                    animes_suscritos = lista_animes_suscritos()
 
-                    if suscripciones < 1:  # Confirma si estás suscrito a algún anime
+                    if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
                         input("\n\nPresione ENTER para continuar.\n")
                         break
 
@@ -825,9 +824,9 @@ while True:
 
                 if quitar_anime == str(i + 1):
 
-                    confirmdesus = True
+                    confirmar_desuscripcion = True
 
-            if confirmdesus is False:  # Se vuelven a mostrar las opciones sino
+            if confirmar_desuscripcion is False:  # Se vuelven a mostrar las opciones sino
                 continue
 
             print("\n\n" + Style.BRIGHT + Fore.RED + "¡Quitaste a " + seen_animes_txt[(

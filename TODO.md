@@ -19,6 +19,7 @@ Project Description
 
 - [ ] Ordenar el código  
 - [ ] Crear más funciones  
+- [ ] Las listas tienen que retornar la cantidad de animes que contienen y las listas en sí, así puedo mostrarla opcionalmente, por si solamente quiero ver el numero de animes.  
 
 ### Done ✓
 
