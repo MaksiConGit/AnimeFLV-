@@ -102,6 +102,9 @@ def configurar_notificaciones():
     with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
         pass
 
+    with open(SEEN_ANIMES_DIR, "wb") as seen_animes:
+        pass
+
     return True  # Confirma que ya se mostró el "Bienvenido a"
 
 
@@ -209,7 +212,8 @@ def lista_animes_suscritos():
     Descripción de la función:
 
     Abre el bloc de notas, toma la información
-    de los animes SUSCRITOS y los enumera en una lista
+    de los animes SUSCRITOS y los enumera en una lista.
+    Retorna la cantidad de animes suscritos.
     """
 
     with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
@@ -228,11 +232,14 @@ def lista_animes_suscritos():
               Fore.WHITE + seen_animes_txt[indice * 3].strip() +  # Nombre
               Style.NORMAL + Fore.YELLOW + " | " + Style.BRIGHT + Fore.BLUE +  # Separador
               seen_animes_txt[(indice * 3) + 1].strip())  # Episodio
+   
+    if suscripciones < 1:  # Comprueba si existe al menos un anime
 
-    if suscripciones < 1:  # Confirma si estás suscrito a algún anime
         print(Fore.LIGHTBLACK_EX +
-              "No estás suscrito a ningún anime.\n"
-              "¡Suscríbete a uno para empezar a recibir notificaciones!")
+            "No estás suscrito a ningún anime.\n"
+            "¡Suscríbete a uno para empezar a recibir notificaciones!")
+    
+    return suscripciones
 
 
 def lista_animes_vistos():
@@ -240,7 +247,8 @@ def lista_animes_vistos():
     Descripción de la función:
 
     Abre el bloc de notas, toma la información
-    de los animes VISTOS y los enumera en una lista
+    de los animes VISTOS y los enumera en una lista.
+    Retorna la cantidad de animes vistos.
     """
 
     with open(SEEN_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
@@ -259,11 +267,14 @@ def lista_animes_vistos():
               + Fore.WHITE + seen_animes_txt[indice * 3].strip()  # Nombre
               + Style.NORMAL + Fore.YELLOW + " | " + Fore.LIGHTBLUE_EX +  # Separador
               seen_animes_txt[(i * 3) + 1].strip())  # Episodio
+  
+    if num_animes_vistos < 1:  # Comprueba si existe al menos un anime
 
-    if num_animes_vistos < 1:  # Confirma si viste algún anime
         print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n"
-              "¡Cuando finalice un anime suscrito, vendrá aquí!"
-              "\nTIP: Puedes suscribirte a animes finalizados")
+            "¡Cuando finalice un anime suscrito, vendrá aquí!"
+            "\nTIP: Puedes suscribirte a animes finalizados")
+        
+    return num_animes_vistos
 
 
 def borrar_anime_finalizado(ID):
@@ -366,6 +377,13 @@ class Anime():
 
         # Toma la información de la página
         try:
+
+            HEADERS = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+            'AppleWebKit/537.36 (KHTML, like Gecko)'
+            'Chrome/58.0.3029.110 Safari/537.3'
+            }
+
             pedido = requests.get(urlnewanime, headers=HEADERS, timeout=5)
 
         except requests.exceptions.InvalidURL:
@@ -696,9 +714,9 @@ while True:
 
     elif opciones == "1":  # Buscar nuevos episodios
 
-        lista_animes_suscritos()
+        animes_vistos = lista_animes_suscritos()
 
-        if suscripciones < 1:  # Confirma si estás suscrito a algún anime
+        if animes_vistos < 1:  # Confirma si estás suscrito a algún anime
             input("\n\nPresione ENTER para continuar.\n")
             continue
 

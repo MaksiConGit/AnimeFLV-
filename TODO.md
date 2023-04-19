@@ -27,4 +27,5 @@ Project Description
 - [x] Ordenar opción 3, 4 y 5  
 - [x] Crear función "nuevos_capitulos"  
 - [x] Ordenar funciones  
+- [x] Las listas retornan la cantidad de animes que contienen  
 
