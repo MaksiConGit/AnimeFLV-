@@ -227,9 +227,19 @@ def lista_animes_suscritos():
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
                    Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
+    animes = []
+
     for indice in range(suscripciones):
+        animes += [{"id": str(indice + 1),
+                    "nombre": seen_animes_txt[indice * 3].strip(),
+                    "episodio": seen_animes_txt[(indice * 3) + 1].strip()}]
+
+    for anime in animes:
         color = next(colors)
-        mostrar_lista_suscritos += "\n" + Style.BRIGHT + color + str(indice + 1) + ". " + Fore.WHITE + seen_animes_txt[indice * 3].strip() + Style.NORMAL + Fore.YELLOW + " | " + Style.BRIGHT + Fore.BLUE + seen_animes_txt[(indice * 3) + 1].strip()
+        mostrar_lista_suscritos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "
+                                    + Fore.WHITE + anime["nombre"]
+                                    + Style.NORMAL + Fore.YELLOW + " | "
+                                    + Style.BRIGHT + Fore.BLUE + anime["episodio"])
 
     return suscripciones, mostrar_lista_suscritos
 
