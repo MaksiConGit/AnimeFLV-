@@ -237,9 +237,9 @@ def lista_animes_suscritos():
     for anime in animes:
         color = next(colors)
         mostrar_lista_suscritos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "
-                                    + Fore.WHITE + anime["nombre"]
-                                    + Style.NORMAL + Fore.YELLOW + " | "
-                                    + Style.BRIGHT + Fore.BLUE + anime["episodio"])
+                                            + Fore.WHITE + anime["nombre"]
+                                            + Style.NORMAL + Fore.YELLOW + " | "
+                                            + Style.BRIGHT + Fore.BLUE + anime["episodio"])
 
     return suscripciones, mostrar_lista_suscritos
 
@@ -271,12 +271,21 @@ def lista_animes_vistos():
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
                    Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
+    animes = []
+
     for indice in range(num_animes_vistos):
+        animes += [{"id": str(indice + 1),
+                    "nombre": seen_animes_txt[indice * 3].strip(),
+                    "episodio": seen_animes_txt[(indice * 3) + 1].strip()}]
+
+    for anime in animes:
+
         color = next(colors)
-        mostrar_lista_vistos += ("\n" + Style.BRIGHT + color + str(indice + 1) + ". "  # Enumera
-              + Fore.WHITE + seen_animes_txt[indice * 3].strip()  # Nombre
-              + Style.NORMAL + Fore.YELLOW + " | " + Fore.LIGHTBLUE_EX +  # Separador
-              seen_animes_txt[(indice * 3) + 1].strip())  # Episodio
+
+        mostrar_lista_vistos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "  # Enumera
+                                        + Fore.WHITE + anime["nombre"]  # Nombre
+                                        + Style.NORMAL + Fore.YELLOW + " | " # Separador
+                                        + Fore.LIGHTBLUE_EX + anime["episodio"])  # Episodio
   
     return num_animes_vistos, mostrar_lista_vistos
 
