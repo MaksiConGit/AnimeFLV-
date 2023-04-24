@@ -6,7 +6,6 @@ Project Description
 
 ### Todo
 
-- [ ]   
 - [ ] Borrar diccionarios de las listas (un anime) a través de la función pop() y el índice de la lista  
 - [ ] Obtener los nombres de los animes con [::2] y con el índice  
 - [ ] Verificar si ya habías visto un anime finalizado  
@@ -18,6 +17,7 @@ Project Description
 
 ### Done ✓
 
+- [x] Actualizar las lista al desuscribirse a través del retorno del diccionario  
 - [x] Agregar un nuevo retorno a las listas, tienen que devolver la lista de diccionarios así se pueden modificar  
 - [x] Crear listas de diccionarios para ambas listas  
 - [x] Crear una lista de diccionarios  

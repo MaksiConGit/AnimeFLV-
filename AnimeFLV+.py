@@ -217,22 +217,23 @@ def lista_animes_suscritos():
 
     mostrar_lista_suscritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + \
         "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n"
+    
+    animes = []
 
     if suscripciones < 1:  # Comprueba si existe al menos un anime
         mostrar_lista_suscritos += Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n" + \
             "¡Suscríbete a uno para empezar a recibir notificaciones!"
 
-        return suscripciones, mostrar_lista_suscritos
+        return suscripciones, mostrar_lista_suscritos, animes
 
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
                    Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
-    animes = []
-
     for indice in range(suscripciones):
         animes += [{"id": str(indice + 1),
                     "nombre": seen_animes_txt[indice * 3].strip(),
-                    "episodio": seen_animes_txt[(indice * 3) + 1].strip()}]
+                    "episodio": seen_animes_txt[(indice * 3) + 1].strip(),
+                    "link": seen_animes_txt[(indice * 3) + 2].strip()}]
 
     for anime in animes:
         color = next(colors)
@@ -656,7 +657,7 @@ while True:
                             print("\n\n" + Style.BRIGHT + Fore.GREEN +
                                   "¡Te suscribiste a " + newanime.nombre + "!")
 
-                            _, mostrar_lista = lista_animes_suscritos()
+                            _, mostrar_lista, _ = lista_animes_suscritos()
 
                             print(mostrar_lista)
 
@@ -706,40 +707,27 @@ while True:
                     if CONFIRMAR_DESUSCRIPCION is False:
                         continue
 
-                    suscripciones, mostrar_lista, animes = lista_animes_suscritos()
+                    _, _, animes = lista_animes_suscritos()
 
+                    suscribed_animes = []
+
+                    # Realiza una lista nueva para actualizar la anterior 
                     for anime in animes:
-                        if anime["id"] == desuscripcion:
+                        if anime["id"] == desuscripcion: # Te muestra el anime al cual te desuscribiste
                             print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + anime["nombre"] + "!")
-                            animes.remove(anime)
-                            break
 
+                        else: # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
 
-                    # with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-                    #     seen_animes_txt = seen_animes.readlines()
-
-                    # print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " +
-                    #       seen_animes_txt[(int(desuscripcion) - 1) * 3].strip() + "!")
-                    
-
-
-                    # Borra la información del anime
-                    # seen_animes_txt[(int(desuscripcion) - 1) * 3] = ""
-                    # seen_animes_txt[(int(desuscripcion) - 1) * 3 + 1] = ""
-                    # seen_animes_txt[(int(desuscripcion) - 1) * 3 + 2] = ""
+                            suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
 
                     # Actualiza la información del bloc de notas
-                    # with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
-                    #     seen_animes.writelines(line.encode(
-                    #         'utf-8') for line in seen_animes_txt)
-
                     with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
                         seen_animes.writelines(line.encode(
-                        'utf-8') for line in seen_animes_txt)
-
-                    # Muestra la lista de animes
+                            'utf-8') for line in suscribed_animes)
+                            
                     animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
+                    # Muestra la lista actualizada
                     print(mostrar_lista)
 
                     if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
