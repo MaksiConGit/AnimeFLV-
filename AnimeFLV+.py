@@ -29,14 +29,14 @@ def comprobar_suscripciones():
     pueden mostrar o no las opciones.
     """
 
-    animes_suscritos, mostrar_lista = lista_animes_suscritos()
+    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
     if animes_suscritos >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
         print(mostrar_lista)
         barra_de_carga()
 
         return False, "1"
-    
+
     return True, None
 
 
@@ -53,34 +53,32 @@ def configurar_notificaciones():
     print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
 
     input("\n\nPrimero que nada, vamos a personalizar el programa"
-            " para que tengas una experiencia única."
-            "\n\nPresione ENTER para continuar.")
+          " para que tengas una experiencia única."
+          "\n\nPresione ENTER para continuar.")
 
     print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
     print("\n\nEsta imagen se mostrará junto con"
-            "el nombre del anime y el número del nuevo capítulo.")
+          "el nombre del anime y el número del nuevo capítulo.")
 
     input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
-            "\n\n2. Pega esa imagen en la carpeta del programa."
-            "\n\n3. Presione ENTER cuando esté listo.")
+          "\n\n2. Pega esa imagen en la carpeta del programa."
+          "\n\n3. Presione ENTER cuando esté listo.")
 
     print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
     print("\n\nEste sonido debe ser corto, puede ser una parte de "
-            "una canción o un simple sonido de notificación.")
+          "una canción o un simple sonido de notificación.")
     print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
-            "\n\n2. Pega ese sonido en la carpeta del programa."
-            "\n\n3. Presione ENTER cuando esté listo.")
+          "\n\n2. Pega ese sonido en la carpeta del programa."
+          "\n\n3. Presione ENTER cuando esté listo.")
     print("\n\nIMPORTANTE:\n\n"
-            "Si desea el sonido de notificación predeterminado de Windows, "
-            "no haga ningún cambio, únicamente presione ENTER.\n")
+          "Si desea el sonido de notificación predeterminado de Windows, "
+          "no haga ningún cambio, únicamente presione ENTER.\n")
 
     input()
-
 
     # Se crea la carpeta
     if not os.path.exists(os.getcwd() + "\\config\\"):
         os.makedirs("config")
-
 
     # Mueve la imagen y el sonido a la nueva carpeta
     for filename in os.listdir(os.getcwd()):
@@ -217,10 +215,12 @@ def lista_animes_suscritos():
         seen_animes_txt = seen_animes.readlines()
         suscripciones = len(seen_animes_txt) // 3
 
-    mostrar_lista_suscritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n"
+    mostrar_lista_suscritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + \
+        "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n"
 
     if suscripciones < 1:  # Comprueba si existe al menos un anime
-        mostrar_lista_suscritos += Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n" + "¡Suscríbete a uno para empezar a recibir notificaciones!"
+        mostrar_lista_suscritos += Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n" + \
+            "¡Suscríbete a uno para empezar a recibir notificaciones!"
 
         return suscripciones, mostrar_lista_suscritos
 
@@ -237,11 +237,11 @@ def lista_animes_suscritos():
     for anime in animes:
         color = next(colors)
         mostrar_lista_suscritos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "
-                                            + Fore.WHITE + anime["nombre"]
-                                            + Style.NORMAL + Fore.YELLOW + " | "
-                                            + Style.BRIGHT + Fore.BLUE + anime["episodio"])
+                                    + Fore.WHITE + anime["nombre"]
+                                    + Style.NORMAL + Fore.YELLOW + " | "
+                                    + Style.BRIGHT + Fore.BLUE + anime["episodio"])
 
-    return suscripciones, mostrar_lista_suscritos
+    return suscripciones, mostrar_lista_suscritos, animes
 
 
 def lista_animes_vistos():
@@ -258,14 +258,14 @@ def lista_animes_vistos():
         num_animes_vistos = len(seen_animes_txt) // 3
 
     mostrar_lista_vistos = ("\n\n" + Style.RESET_ALL + Back.LIGHTWHITE_EX + Fore.LIGHTRED_EX +
-          "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
-    
+                            "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+
     if num_animes_vistos < 1:  # Comprueba si existe al menos un anime
 
         mostrar_lista_vistos += (Fore.LIGHTBLACK_EX + "No viste ningún anime.\n"
-            "¡Cuando finalice un anime suscrito, vendrá aquí!"
-            "\nTIP: Puedes suscribirte a animes finalizados")
-        
+                                 "¡Cuando finalice un anime suscrito, vendrá aquí!"
+                                 "\nTIP: Puedes suscribirte a animes finalizados")
+
         return num_animes_vistos, mostrar_lista_vistos
 
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
@@ -283,11 +283,11 @@ def lista_animes_vistos():
         color = next(colors)
 
         mostrar_lista_vistos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "  # Enumera
-                                        + Fore.WHITE + anime["nombre"]  # Nombre
-                                        + Style.NORMAL + Fore.YELLOW + " | " # Separador
-                                        + Fore.LIGHTBLUE_EX + anime["episodio"])  # Episodio
-  
-    return num_animes_vistos, mostrar_lista_vistos
+                                 + Fore.WHITE + anime["nombre"]  # Nombre
+                                 + Style.NORMAL + Fore.YELLOW + " | "  # Separador
+                                 + Fore.LIGHTBLUE_EX + anime["episodio"])  # Episodio
+
+    return num_animes_vistos, mostrar_lista_vistos, animes
 
 
 def borrar_anime_finalizado(ID):
@@ -318,7 +318,7 @@ def borrar_anime_finalizado(ID):
         'Chrome/58.0.3029.110 Safari/537.3'
     }
     anime_subs_pedido = requests.get(
-    url_anime_subs, headers=headers, timeout=5)
+        url_anime_subs, headers=headers, timeout=5)
     anime_subs_html = anime_subs_pedido.text
     anime_subs_soup = BeautifulSoup(anime_subs_html, "html.parser")
     anime_susbs_estado = anime_subs_soup.find('span', class_='fa-tv')
@@ -399,9 +399,9 @@ class Anime():
         try:
 
             HEADERS = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-            'AppleWebKit/537.36 (KHTML, like Gecko)'
-            'Chrome/58.0.3029.110 Safari/537.3'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                'AppleWebKit/537.36 (KHTML, like Gecko)'
+                'Chrome/58.0.3029.110 Safari/537.3'
             }
 
             pedido = requests.get(urlnewanime, headers=HEADERS, timeout=5)
@@ -622,7 +622,7 @@ while True:
                                 "\n\n" + Fore.RED + "¡Ya estabas suscrito a " +
                                 newanime.nombre + "!")
 
-                            animes_suscritos, mostrar_lista = lista_animes_suscritos()
+                            _, mostrar_lista = lista_animes_suscritos()
 
                             print(mostrar_lista)
 
@@ -656,7 +656,7 @@ while True:
                             print("\n\n" + Style.BRIGHT + Fore.GREEN +
                                   "¡Te suscribiste a " + newanime.nombre + "!")
 
-                            animes_suscritos, mostrar_lista = lista_animes_suscritos()
+                            _, mostrar_lista = lista_animes_suscritos()
 
                             print(mostrar_lista)
 
@@ -678,7 +678,7 @@ while True:
                           Back.RED + Fore.WHITE + "desuscribirse" + Back.RESET + Fore.RESET + ": | "
                           + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
 
-                    animes_suscritos, mostrar_lista = lista_animes_suscritos()
+                    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
                     print(mostrar_lista)
 
@@ -697,33 +697,48 @@ while True:
                     CONFIRMAR_DESUSCRIPCION = False
 
                     # Confirma si lo ingresado es un índice de su lista
-                    for i in range(animes_suscritos):
+                    for indice in range(animes_suscritos):
 
-                        if desuscripcion == str(i + 1):
+                        if desuscripcion == str(indice + 1):
 
                             CONFIRMAR_DESUSCRIPCION = True
 
                     if CONFIRMAR_DESUSCRIPCION is False:
                         continue
 
-                    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-                        seen_animes_txt = seen_animes.readlines()
+                    suscripciones, mostrar_lista, animes = lista_animes_suscritos()
 
-                    print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " +
-                          seen_animes_txt[(int(desuscripcion) - 1) * 3].strip() + "!")
+                    for anime in animes:
+                        if anime["id"] == desuscripcion:
+                            print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + anime["nombre"] + "!")
+                            animes.remove(anime)
+                            break
+
+
+                    # with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
+                    #     seen_animes_txt = seen_animes.readlines()
+
+                    # print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " +
+                    #       seen_animes_txt[(int(desuscripcion) - 1) * 3].strip() + "!")
+                    
+
 
                     # Borra la información del anime
-                    seen_animes_txt[(int(desuscripcion) - 1) * 3] = ""
-                    seen_animes_txt[(int(desuscripcion) - 1) * 3 + 1] = ""
-                    seen_animes_txt[(int(desuscripcion) - 1) * 3 + 2] = ""
+                    # seen_animes_txt[(int(desuscripcion) - 1) * 3] = ""
+                    # seen_animes_txt[(int(desuscripcion) - 1) * 3 + 1] = ""
+                    # seen_animes_txt[(int(desuscripcion) - 1) * 3 + 2] = ""
 
                     # Actualiza la información del bloc de notas
+                    # with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
+                    #     seen_animes.writelines(line.encode(
+                    #         'utf-8') for line in seen_animes_txt)
+
                     with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
                         seen_animes.writelines(line.encode(
-                            'utf-8') for line in seen_animes_txt)
+                        'utf-8') for line in seen_animes_txt)
 
                     # Muestra la lista de animes
-                    animes_suscritos, mostrar_lista = lista_animes_suscritos()
+                    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
                     print(mostrar_lista)
 
@@ -742,7 +757,7 @@ while True:
 
             elif opciones == "3":  # Lista de animes suscritos
 
-                animes_suscritos, mostrar_lista = lista_animes_suscritos()
+                _, mostrar_lista = lista_animes_suscritos()
 
                 print(mostrar_lista)
 
@@ -754,9 +769,9 @@ while True:
 
     elif opciones == "1":  # Buscar nuevos episodios
 
-        animes_suscritos, lista = lista_animes_suscritos()
+        animes_suscritos, mostrar_lista, animes = lista_animes_suscritos()
 
-        print(lista)
+        print(mostrar_lista)
 
         if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
             input("\n\nPresione ENTER para continuar.\n")

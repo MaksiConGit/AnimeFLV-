@@ -6,22 +6,19 @@ Project Description
 
 ### Todo
 
+- [ ]   
 - [ ] Borrar diccionarios de las listas (un anime) a través de la función pop() y el índice de la lista  
-- [ ] Hacer listas de listas para los animes, es más fácil extraer la información a partir de la comprensión de listas  
 - [ ] Obtener los nombres de los animes con [::2] y con el índice  
-- [ ] Borrar elementos de la lista con remove()  
-- [ ] Crear índice para los animes de las listas a través de enumerate()  
-- [ ] Modificar cómo se agregan y borran las líneas de las listas con lo aprendido en el curso  
 - [ ] Verificar si ya habías visto un anime finalizado  
 
 ### In Progress
 
-- [ ] Agregar diccionarios en las listas (un anime) al suscribirte  
 - [ ] Ordenar el código  
 - [ ] Crear más funciones  
 
 ### Done ✓
 
+- [x] Agregar un nuevo retorno a las listas, tienen que devolver la lista de diccionarios así se pueden modificar  
 - [x] Crear listas de diccionarios para ambas listas  
 - [x] Crear una lista de diccionarios  
 - [x] Eliminar las variables globales  
