@@ -6,17 +6,17 @@ Project Description
 
 ### Todo
 
-- [ ] Borrar diccionarios de las listas (un anime) a través de la función pop() y el índice de la lista  
-- [ ] Obtener los nombres de los animes con [::2] y con el índice  
 - [ ] Verificar si ya habías visto un anime finalizado  
 
 ### In Progress
 
+- [ ] Rehacer la función borrar_anime_finalizado() con las nuevos retornos de las listas  
+- [ ] Actualizar las listas en la opción 1 y 3 a través del nuevo retorno de los diccionarios.  
 - [ ] Ordenar el código  
-- [ ] Crear más funciones  
 
 ### Done ✓
 
+- [x] Comparar información de la página con la de la lista de animes suscritos en la opción 1  
 - [x] Actualizar las lista al desuscribirse a través del retorno del diccionario  
 - [x] Agregar un nuevo retorno a las listas, tienen que devolver la lista de diccionarios así se pueden modificar  
 - [x] Crear listas de diccionarios para ambas listas  

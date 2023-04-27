@@ -217,7 +217,7 @@ def lista_animes_suscritos():
 
     mostrar_lista_suscritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + \
         "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n"
-    
+
     animes = []
 
     if suscripciones < 1:  # Comprueba si existe al menos un anime
@@ -711,12 +711,14 @@ while True:
 
                     suscribed_animes = []
 
-                    # Realiza una lista nueva para actualizar la anterior 
+                    # Realiza una lista nueva para actualizar la anterior
                     for anime in animes:
-                        if anime["id"] == desuscripcion: # Te muestra el anime al cual te desuscribiste
-                            print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + anime["nombre"] + "!")
+                        # Te muestra el anime al cual te desuscribiste
+                        if anime["id"] == desuscripcion:
+                            print("\n\n" + Style.BRIGHT + Fore.RED +
+                                  "¡Te desuscribiste de " + anime["nombre"] + "!")
 
-                        else: # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
+                        else:  # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
 
                             suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
 
@@ -724,7 +726,7 @@ while True:
                     with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
                         seen_animes.writelines(line.encode(
                             'utf-8') for line in suscribed_animes)
-                            
+
                     animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
                     # Muestra la lista actualizada
@@ -745,7 +747,7 @@ while True:
 
             elif opciones == "3":  # Lista de animes suscritos
 
-                _, mostrar_lista = lista_animes_suscritos()
+                _, mostrar_lista, _ = lista_animes_suscritos()
 
                 print(mostrar_lista)
 
@@ -774,53 +776,41 @@ while True:
 
         while True:
 
-            nombres, capitulos = nuevos_capitulos()
+            animes_suscritos, mostrar_lista, animes = lista_animes_suscritos()
+            nombres, episodios = nuevos_capitulos()
 
-            with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-                seen_animes_txt = seen_animes.readlines()
-                suscripciones = len(seen_animes_txt) // 3
+            suscribed_animes = []
+            ACTUALIZAR_BLOCK = False
 
-            for y in range(suscripciones):  # Cantidad de animes suscritos
+            for anime in animes:
 
-                # Cantidad de animes con nuevos capítulos a la inversa
-                for x in range(len(nombres) - 1, -1, -1):
+                for anime_nuevo_episodio in range(len(nombres) - 1, -1, -1):
 
-                    # Compara los nombres de los animes suscritos con los de los nuevos capítulos
-                    if seen_animes_txt[y * 3].strip() == nombres[x].text:
+                    if anime["nombre"] == nombres[anime_nuevo_episodio].text:
+                        
+                        if anime["episodio"] < episodios[anime_nuevo_episodio].text:
 
-                        # Comprueba si existe un nuevo capítulo de uno de los animes suscritos
-                        if seen_animes_txt[y * 3 + 1].strip() < capitulos[x].text:
+                            anime["episodio"] = episodios[anime_nuevo_episodio].text
 
-                            # Se reemplaza el último capítulo visto de la lista
-                            seen_animes_txt[y * 3 +
-                                            1] = capitulos[x].text + "\n"
-
-                            # Se actualiza la información en el .txt
-                            with open(SUSCRIBED_ANIMES_DIR, "wb",) as seen_animes:
-                                seen_animes.writelines(line.encode('utf-8')
-                                                       for line in seen_animes_txt)
+                            ACTUALIZAR_BLOCK = True
 
                             # Obtenemos el número del último episodio
-                            num_ulti_cap = capitulos[x].text.replace(
+                            num_ulti_cap = anime["episodio"].replace(
                                 "Episodio ", "")
 
                             # Creamos el link del último capítulo
-                            ulti_cap_link = seen_animes_txt[y *
-                                                            3 + 2] + num_ulti_cap
+                            ulti_cap_link = anime["link"] + num_ulti_cap
 
-                            MSG_ESTADO = borrar_anime_finalizado(y)
-
-                            print("\n\n" + Fore.LIGHTBLACK_EX +
-                                  "Presione ENTER para continuar.")
+                            # MSG_ESTADO = borrar_anime_finalizado(y)
 
                             toast = Notification(app_id="AnimeFLV+",
-                                                 title=nombres[x].text + "!!",
-                                                 msg=capitulos[x].text +
-                                                 MSG_ESTADO,
-                                                 icon=image_dir,
-                                                 duration="short",
-                                                 launch=ulti_cap_link
-                                                 )
+                                                    title=anime["nombre"] + "!!",
+                                                    msg=anime["episodio"], 
+                                                    # MSG_ESTADO,
+                                                    icon=image_dir,
+                                                    duration="short",
+                                                    launch=ulti_cap_link
+                                                    )
 
                             if sound_dir == "":
                                 toast.set_audio(audio.Default, loop=False)
@@ -828,6 +818,14 @@ while True:
                             else:
                                 toast.show()
                                 playsound(sound_dir)
+
+                suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+            
+            if ACTUALIZAR_BLOCK is True:
+                with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
+                    seen_animes.writelines(line.encode(
+                        'utf-8') for line in suscribed_animes)
+                    
 
             keyboard.on_press(on_key_press)
 
@@ -839,6 +837,7 @@ while True:
             if confirm is False:
                 input()
                 break
+            
 
     elif opciones == "3":  # Animes finalizados
 
