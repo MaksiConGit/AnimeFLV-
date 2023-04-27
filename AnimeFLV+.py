@@ -288,10 +288,10 @@ def lista_animes_vistos():
                                  + Style.NORMAL + Fore.YELLOW + " | "  # Separador
                                  + Fore.LIGHTBLUE_EX + anime["episodio"])  # Episodio
 
-    return num_animes_vistos, mostrar_lista_vistos, animes
+    return num_animes_vistos, mostrar_lista_vistos
 
 
-def borrar_anime_finalizado(ID):
+def borrar_anime_finalizado(anime_id_borrar):
     """
     Descripción de la función:
 
@@ -303,56 +303,71 @@ def borrar_anime_finalizado(ID):
     anime finalizó.
     """
 
-    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-        seen_animes_txt = seen_animes.readlines()
+    _, _, animes = lista_animes_suscritos()
 
-    # Limpiamos el link para transformarlo al de la página del anime
-    url_anime_subs = seen_animes_txt[ID * 3 + 2]
-    url_anime_subs = url_anime_subs.replace("/ver/", "/anime/")
-    clean_url = url_anime_subs.rfind('-')
-    url_anime_subs = url_anime_subs[:clean_url]
+    new_suscribed_animes = []
 
-    # Toma la información de la página
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-        'AppleWebKit/537.36 (KHTML, like Gecko)'
-        'Chrome/58.0.3029.110 Safari/537.3'
-    }
-    anime_subs_pedido = requests.get(
-        url_anime_subs, headers=headers, timeout=5)
-    anime_subs_html = anime_subs_pedido.text
-    anime_subs_soup = BeautifulSoup(anime_subs_html, "html.parser")
-    anime_susbs_estado = anime_subs_soup.find('span', class_='fa-tv')
+    for anime in animes:
 
-    msg_finalizado = ""
+        if anime["id"] == anime_id_borrar:
+        
+            # Limpiamos el link para transformarlo al de la página del anime
+            url_anime_subs = anime["link"]
+            url_anime_subs = url_anime_subs.replace("/ver/", "/anime/")
+            clean_url = url_anime_subs.rfind('-')
+            url_anime_subs = url_anime_subs[:clean_url]
 
-    # Comprueba si finalizó
-    if anime_susbs_estado.text == "Finalizado":
+            # Toma la información de la página
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                'AppleWebKit/537.36 (KHTML, like Gecko)'
+                'Chrome/58.0.3029.110 Safari/537.3'
+            }
+            anime_subs_pedido = requests.get(
+                url_anime_subs, headers=headers, timeout=5)
+            anime_subs_html = anime_subs_pedido.text
+            anime_subs_soup = BeautifulSoup(anime_subs_html, "html.parser")
+            anime_susbs_estado = anime_subs_soup.find('span', class_='fa-tv')
 
-        msg_finalizado = " | Finalizado"  # Se agrega la esta información a la notificación
+            msg_finalizado = ""
 
-        # Se actualiza la lista de animes vistos
-        with open(SEEN_ANIMES_DIR, 'ab') as seen_animes:
-            seen_animes.write(nombres[x].text.encode('utf-8') +
-                              b"\n" + capitulos[x].text.encode('utf-8') +
-                              b"\n" + urlnewanime.encode('utf-8') + b"\n")
+            # Comprueba si finalizó
+            if anime_susbs_estado.text == "Finalizado":
 
-        # Borra la información de la lista de animes suscritos
-        seen_animes_txt[ID * 3] = ""
-        seen_animes_txt[ID * 3 + 1] = ""
-        seen_animes_txt[ID * 3 + 2] = ""
+                msg_finalizado = " | Finalizado"  # Se agrega la esta información a la notificación
 
-        # Se actualiza la lista de animes suscritos
-        with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
-            seen_animes.writelines(line.encode(
-                'utf-8') for line in seen_animes_txt)
+                # Se actualiza la lista de animes vistos
+                with open(SEEN_ANIMES_DIR, 'ab') as seen_animes:
+                    seen_animes.write(anime["nombre"].encode('utf-8') +
+                                        b"\n" + anime["episodio"].encode('utf-8') +
+                                        b"\n" + url_anime_subs.encode('utf-8') + b"\n")
 
-        print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + nombres[x].text + "!\n" +
-              Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
+                print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + anime["nombre"] + "!\n" +
+                        Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
 
-        animes_vistos, mostrar_lista = lista_animes_vistos()
+                sumar_anime_suscrito = False
 
-        print(mostrar_lista)
+                animes_vistos, mostrar_lista = lista_animes_vistos()
+
+                print(mostrar_lista)
+
+            else:
+
+                sumar_anime_suscrito = True
+
+        else:
+
+            sumar_anime_suscrito = True
+
+        if sumar_anime_suscrito is True:
+
+            new_suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+    # Actualiza la información del bloc de notas
+    with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
+        seen_animes.writelines(line.encode(
+            'utf-8') for line in new_suscribed_animes)
+
 
     return msg_finalizado
 
@@ -801,12 +816,12 @@ while True:
                             # Creamos el link del último capítulo
                             ulti_cap_link = anime["link"] + num_ulti_cap
 
-                            # MSG_ESTADO = borrar_anime_finalizado(y)
+                            MSG_ESTADO = borrar_anime_finalizado(anime["id"])
 
                             toast = Notification(app_id="AnimeFLV+",
                                                     title=anime["nombre"] + "!!",
-                                                    msg=anime["episodio"], 
-                                                    # MSG_ESTADO,
+                                                    msg=anime["episodio"] +
+                                                    MSG_ESTADO,
                                                     icon=image_dir,
                                                     duration="short",
                                                     launch=ulti_cap_link
