@@ -6,15 +6,15 @@ Project Description
 
 ### Todo
 
-- [ ] Verificar si ya habías visto un anime finalizado  
 
 ### In Progress
 
-- [ ] Actualizar las listas en la opción 1 y 3 a través del nuevo retorno de los diccionarios.  
+- [ ] Verificar si ya habías visto un anime finalizado  
 - [ ] Ordenar el código  
 
 ### Done ✓
 
+- [x] Actualizar las listas en la opción 1 y 3 a través del nuevo retorno de los diccionarios.  
 - [x] Rehacer la función borrar_anime_finalizado() con las nuevos retornos de las listas  
 - [x] Comparar información de la página con la de la lista de animes suscritos en la opción 1  
 - [x] Actualizar las lista al desuscribirse a través del retorno del diccionario  

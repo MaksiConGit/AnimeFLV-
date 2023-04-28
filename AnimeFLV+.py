@@ -261,25 +261,26 @@ def lista_animes_vistos():
     mostrar_lista_vistos = ("\n\n" + Style.RESET_ALL + Back.LIGHTWHITE_EX + Fore.LIGHTRED_EX +
                             "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
 
+    animes_vistos = []
+
     if num_animes_vistos < 1:  # Comprueba si existe al menos un anime
 
         mostrar_lista_vistos += (Fore.LIGHTBLACK_EX + "No viste ningún anime.\n"
                                  "¡Cuando finalice un anime suscrito, vendrá aquí!"
                                  "\nTIP: Puedes suscribirte a animes finalizados")
 
-        return num_animes_vistos, mostrar_lista_vistos
+        return num_animes_vistos, mostrar_lista_vistos, animes_vistos
 
     colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
                    Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
 
-    animes = []
-
     for indice in range(num_animes_vistos):
-        animes += [{"id": str(indice + 1),
-                    "nombre": seen_animes_txt[indice * 3].strip(),
-                    "episodio": seen_animes_txt[(indice * 3) + 1].strip()}]
+        animes_vistos += [{"id": str(indice + 1),
+                           "nombre": seen_animes_txt[indice * 3].strip(),
+                           "episodio": seen_animes_txt[(indice * 3) + 1].strip(),
+                           "link": seen_animes_txt[(indice * 3) + 2].strip()}]
 
-    for anime in animes:
+    for anime in animes_vistos:
 
         color = next(colors)
 
@@ -288,7 +289,7 @@ def lista_animes_vistos():
                                  + Style.NORMAL + Fore.YELLOW + " | "  # Separador
                                  + Fore.LIGHTBLUE_EX + anime["episodio"])  # Episodio
 
-    return num_animes_vistos, mostrar_lista_vistos
+    return num_animes_vistos, mostrar_lista_vistos, animes_vistos
 
 
 def borrar_anime_finalizado(anime_id_borrar):
@@ -310,7 +311,7 @@ def borrar_anime_finalizado(anime_id_borrar):
     for anime in animes:
 
         if anime["id"] == anime_id_borrar:
-        
+
             # Limpiamos el link para transformarlo al de la página del anime
             url_anime_subs = anime["link"]
             url_anime_subs = url_anime_subs.replace("/ver/", "/anime/")
@@ -339,15 +340,15 @@ def borrar_anime_finalizado(anime_id_borrar):
                 # Se actualiza la lista de animes vistos
                 with open(SEEN_ANIMES_DIR, 'ab') as seen_animes:
                     seen_animes.write(anime["nombre"].encode('utf-8') +
-                                        b"\n" + anime["episodio"].encode('utf-8') +
-                                        b"\n" + url_anime_subs.encode('utf-8') + b"\n")
+                                      b"\n" + anime["episodio"].encode('utf-8') +
+                                      b"\n" + url_anime_subs.encode('utf-8') + b"\n")
 
                 print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + anime["nombre"] + "!\n" +
-                        Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
+                      Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
 
                 sumar_anime_suscrito = False
 
-                animes_vistos, mostrar_lista = lista_animes_vistos()
+                _, mostrar_lista, _ = lista_animes_vistos()
 
                 print(mostrar_lista)
 
@@ -367,7 +368,6 @@ def borrar_anime_finalizado(anime_id_borrar):
     with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
         seen_animes.writelines(line.encode(
             'utf-8') for line in new_suscribed_animes)
-
 
     return msg_finalizado
 
@@ -657,7 +657,7 @@ while True:
                                   Fore.YELLOW + "\nEl anime fue enviado a "
                                   "la lista de animes finalizados.")
 
-                            animes_vistos, mostrar_lista = lista_animes_vistos()
+                            _, mostrar_lista, _ = lista_animes_vistos()
 
                             print(mostrar_lista)
 
@@ -802,7 +802,7 @@ while True:
                 for anime_nuevo_episodio in range(len(nombres) - 1, -1, -1):
 
                     if anime["nombre"] == nombres[anime_nuevo_episodio].text:
-                        
+
                         if anime["episodio"] < episodios[anime_nuevo_episodio].text:
 
                             anime["episodio"] = episodios[anime_nuevo_episodio].text
@@ -819,13 +819,13 @@ while True:
                             MSG_ESTADO = borrar_anime_finalizado(anime["id"])
 
                             toast = Notification(app_id="AnimeFLV+",
-                                                    title=anime["nombre"] + "!!",
-                                                    msg=anime["episodio"] +
-                                                    MSG_ESTADO,
-                                                    icon=image_dir,
-                                                    duration="short",
-                                                    launch=ulti_cap_link
-                                                    )
+                                                 title=anime["nombre"] + "!!",
+                                                 msg=anime["episodio"] +
+                                                 MSG_ESTADO,
+                                                 icon=image_dir,
+                                                 duration="short",
+                                                 launch=ulti_cap_link
+                                                 )
 
                             if sound_dir == "":
                                 toast.set_audio(audio.Default, loop=False)
@@ -835,12 +835,11 @@ while True:
                                 playsound(sound_dir)
 
                 suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
-            
+
             if ACTUALIZAR_BLOCK is True:
                 with open(SUSCRIBED_ANIMES_DIR, "wb") as seen_animes:
                     seen_animes.writelines(line.encode(
                         'utf-8') for line in suscribed_animes)
-                    
 
             keyboard.on_press(on_key_press)
 
@@ -852,65 +851,71 @@ while True:
             if confirm is False:
                 input()
                 break
-            
 
     elif opciones == "3":  # Animes finalizados
 
-        animes_vistos, mostrar_lista = lista_animes_vistos()
-
-        print(mostrar_lista)
-
         ingresar_anime = "y"
 
-        while ingresar_anime == "y":  # Bucle para quitar los animes que quieras
+        while ingresar_anime == "y":
 
             print("\n\n" + Fore.LIGHTBLACK_EX + "PARA QUITAR UN ANIME: "
                   "Seleccione uno y presione ENTER." +
                   "\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: "
                   "Presione ENTER sin ingresar nada.")
 
-            # Obtiene la información de la lista
-            with open(SEEN_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
-                seen_animes_txt = seen_animes.readlines()
-                num_animes_vistos = len(seen_animes_txt) // 3
-
-            quitar_anime = input("\n")
-
-            if quitar_anime == "":
-                break
-
-            confirmquitar = False
-
-            # Confirma si lo ingresado es un índice de la lista
-            for i in range(num_animes_vistos):
-
-                if quitar_anime == str(i + 1):
-
-                    confirmar_desuscripcion = True
-
-            if confirmar_desuscripcion is False:  # Se vuelven a mostrar las opciones sino
-                continue
-
-            print("\n\n" + Style.BRIGHT + Fore.RED + "¡Quitaste a " + seen_animes_txt[(
-                int(quitar_anime) - 1) * 3].strip() + " de la lista de animes vistos!")
-
-            # Borra la información del anime de la lista
-            seen_animes_txt[(int(quitar_anime) - 1) * 3] = ""
-            seen_animes_txt[(int(quitar_anime) - 1) * 3 + 1] = ""
-            seen_animes_txt[(int(quitar_anime) - 1) * 3 + 2] = ""
-
-            # Guarda los cambios
-            with open(SEEN_ANIMES_DIR, "wb") as seen_animes:
-                seen_animes.writelines(line.encode('utf-8')
-                                       for line in seen_animes_txt)
-
-            # Muestra la lista de animes
-            animes_vistos, mostrar_lista = lista_animes_vistos()
+            num_animes_vistos, mostrar_lista, animes_vistos = lista_animes_vistos()
 
             print(mostrar_lista)
 
-            if suscripciones < 1:  # Confirma si estás suscrito a algún anime
-                input("\n\n")
+            if num_animes_vistos < 1:  # Confirma si estás suscrito a algún anime
+                input("\n\nPresione ENTER para continuar.\n")
+                break
+
+            print("\n" + Fore.LIGHTBLACK_EX +
+                  "PARA CANCELAR: Presione ENTER sin ingresar nada")
+
+            desuscripcion = input("\n")
+
+            if desuscripcion == "":
+                break
+
+            CONFIRMAR_DESUSCRIPCION = False
+
+            # Confirma si lo ingresado es un índice de su lista
+            for indice in range(num_animes_vistos):
+
+                if desuscripcion == str(indice + 1):
+
+                    CONFIRMAR_DESUSCRIPCION = True
+
+            if CONFIRMAR_DESUSCRIPCION is False:
+                continue
+
+            seen_animes_update = []
+
+            # Realiza una lista nueva para actualizar la anterior
+            for anime in animes_vistos:
+                # Te muestra el anime al cual te desuscribiste
+                if anime["id"] == desuscripcion:
+                    print("\n\n" + Style.BRIGHT + Fore.RED +
+                          "¡Quitaste a " + anime["nombre"] + " de la lista de animes vistos!")
+
+                else:  # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
+
+                    seen_animes_update += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+            # Actualiza la información del bloc de notas
+            with open(SEEN_ANIMES_DIR, "wb") as seen_animes:
+                seen_animes.writelines(line.encode(
+                    'utf-8') for line in seen_animes_update)
+
+            num_animes_vistos, mostrar_lista, _ = lista_animes_vistos()
+
+            # Muestra la lista actualizada
+            print(mostrar_lista)
+
+            if num_animes_vistos < 1:  # Confirma si estás suscrito a algún anime
+                input("\n\nPresione ENTER para continuar.\n")
                 break
 
             ingresar_anime = ""
@@ -918,7 +923,7 @@ while True:
             while ingresar_anime not in ('y', 'n'):
 
                 ingresar_anime = input(
-                    "\n\n¿Desea desuscribirse a otro anime? (y/n) ")
+                    "\n\n¿Desea quitar otro anime finalizado? (y/n) ")
 
         print()
 
