@@ -216,7 +216,7 @@ def lista_animes_suscritos():
         suscripciones = len(suscribed_animes_txt) // 3
 
     mostrar_lista_suscritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + \
-        "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n"
+        "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n\n"
 
     animes = []
 
@@ -465,15 +465,6 @@ class Anime():
 
             if anime_visto["nombre"] == self.nombre:
                 self.animecheck = "Ya viste este anime"
-
-        # with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as suscribed_animes:
-        #     suscribed_animes_txt = suscribed_animes.readlines()
-        #     suscripciones = len(suscribed_animes_txt) // 3
-
-        # for indice in range(suscripciones):  # Comprueba si ya estás suscrito
-        #     # Índice * 3 es igual al nombre
-        #     if nombre.text == suscribed_animes_txt[indice * 3].strip():
-        #         self.animecheck = "Ya estabas suscrito a este anime"
 
     def __init__(self):  # Inicializa la clase con sus atributos
         """
@@ -752,7 +743,7 @@ while True:
 
                     _, _, animes = lista_animes_suscritos()
 
-                    suscribed_animes = []
+                    new_suscribed_animes = []
 
                     # Realiza una lista nueva para actualizar la anterior
                     for anime in animes:
@@ -763,12 +754,11 @@ while True:
 
                         else:  # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
 
-                            suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+                            new_suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
 
                     # Actualiza la información del bloc de notas
                     with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
-                        suscribed_animes.writelines(line.encode(
-                            'utf-8') for line in suscribed_animes)
+                        suscribed_animes.writelines(line.encode('utf-8') for line in new_suscribed_animes)
 
                     animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
@@ -822,7 +812,7 @@ while True:
             animes_suscritos, mostrar_lista, animes = lista_animes_suscritos()
             nombres, episodios = nuevos_capitulos()
 
-            suscribed_animes = []
+            new_suscribed_animes = []
             ACTUALIZAR_BLOCK = False
 
             for anime in animes:
@@ -862,12 +852,12 @@ while True:
                                 toast.show()
                                 playsound(sound_dir)
 
-                suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+                new_suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
 
             if ACTUALIZAR_BLOCK is True:
                 with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
                     suscribed_animes.writelines(line.encode(
-                        'utf-8') for line in suscribed_animes)
+                        'utf-8') for line in new_suscribed_animes)
 
             keyboard.on_press(on_key_press)
 

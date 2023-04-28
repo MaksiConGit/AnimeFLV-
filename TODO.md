@@ -9,11 +9,12 @@ Project Description
 
 ### In Progress
 
-- [ ] Verificar si ya habías visto un anime finalizado  
+- [ ] Probar el script y corregir errores  
 - [ ] Ordenar el código  
 
 ### Done ✓
 
+- [x] Verificar si ya habías visto un anime finalizado  
 - [x] Actualizar las listas en la opción 1 y 3 a través del nuevo retorno de los diccionarios.  
 - [x] Rehacer la función borrar_anime_finalizado() con las nuevos retornos de las listas  
 - [x] Comparar información de la página con la de la lista de animes suscritos en la opción 1  
