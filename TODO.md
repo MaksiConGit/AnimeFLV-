@@ -14,6 +14,7 @@ Project Description
 
 ### Done ✓
 
+- [x] Corrección de error que no salía la pantalla de carga cuando buscaba nuevo capítulo después de la primera vez  
 - [x] Verificar si ya habías visto un anime finalizado  
 - [x] Actualizar las listas en la opción 1 y 3 a través del nuevo retorno de los diccionarios.  
 - [x] Rehacer la función borrar_anime_finalizado() con las nuevos retornos de las listas  

@@ -32,8 +32,6 @@ def comprobar_suscripciones():
     animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
     if animes_suscritos >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
-        print(mostrar_lista)
-        barra_de_carga()
 
         return False, "1"
 
@@ -185,6 +183,10 @@ def barra_de_carga():
 
     print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
           "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
+    
+    _, mostrar_lista_suscritos, _ = lista_animes_suscritos()
+    
+    print(mostrar_lista_suscritos)
 
 
 def on_key_press(event):
@@ -799,6 +801,8 @@ while True:
         if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
             input("\n\nPresione ENTER para continuar.\n")
             continue
+        
+        barra_de_carga()
 
         print("\n\n" + Fore.LIGHTBLACK_EX +
               "Presione ENTER para continuar.")  # Cancela la búsqueda
