@@ -452,14 +452,28 @@ class Anime():
         self.estado = estado.text
         self.link = urlnewanime + "-"
 
-        with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as suscribed_animes:
-            suscribed_animes_txt = suscribed_animes.readlines()
-            suscripciones = len(suscribed_animes_txt) // 3
+        _, _, animes_vistos = lista_animes_vistos()
 
-        for indice in range(suscripciones):  # Comprueba si ya estás suscrito
-            # Índice * 3 es igual al nombre
-            if nombre.text == suscribed_animes_txt[indice * 3].strip():
+        _, _, animes_suscritos = lista_animes_suscritos()
+
+        for anime_suscrito in animes_suscritos:
+
+            if anime_suscrito["nombre"] == self.nombre:
                 self.animecheck = "Ya estabas suscrito a este anime"
+
+        for anime_visto in animes_vistos:
+
+            if anime_visto["nombre"] == self.nombre:
+                self.animecheck = "Ya viste este anime"
+
+        # with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as suscribed_animes:
+        #     suscribed_animes_txt = suscribed_animes.readlines()
+        #     suscripciones = len(suscribed_animes_txt) // 3
+
+        # for indice in range(suscripciones):  # Comprueba si ya estás suscrito
+        #     # Índice * 3 es igual al nombre
+        #     if nombre.text == suscribed_animes_txt[indice * 3].strip():
+        #         self.animecheck = "Ya estabas suscrito a este anime"
 
     def __init__(self):  # Inicializa la clase con sus atributos
         """
@@ -641,6 +655,20 @@ while True:
                             _, mostrar_lista, _ = lista_animes_suscritos()
 
                             print(mostrar_lista)
+
+                            input("\n\nPresione ENTER para continuar.\n")
+
+                        elif newanime.animecheck == "Ya viste este anime":
+
+                            print(
+                                "\n\n" + Fore.RED + "¡Ya viste " +
+                                newanime.nombre + "!")
+
+                            _, mostrar_lista, _ = lista_animes_vistos()
+
+                            print(mostrar_lista)
+
+                            input("\n\nPresione ENTER para continuar.\n")
 
                     else:
 
