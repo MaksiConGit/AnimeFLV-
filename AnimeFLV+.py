@@ -70,6 +70,7 @@ def configurar_notificaciones():
             "\n\n2. Pega esa imagen en la carpeta del programa."
             "\n\n3. Presione ENTER cuando esté listo.")
         
+        # Comprueba si hay una imagen y la mueve a la carpeta de configuración
         for filename in os.listdir(os.getcwd()):
 
             name, extension = os.path.splitext(os.getcwd() + filename)
@@ -92,7 +93,7 @@ def configurar_notificaciones():
     
     input()
     
-    # Mueve la imagen y el sonido a la nueva carpeta
+    # Comprueba si hay un sonido y lo mueve a la carpeta de configuración
     for filename in os.listdir(os.getcwd()):
 
         name, extension = os.path.splitext(os.getcwd() + filename)
@@ -100,20 +101,6 @@ def configurar_notificaciones():
         if extension in [".mp3", ".wav"]:
             sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
             os.rename(os.getcwd() + "\\" + filename, sound_dir)
-
-
-    # # Mueve la imagen y el sonido a la nueva carpeta
-    # for filename in os.listdir(os.getcwd()):
-
-    #     name, extension = os.path.splitext(os.getcwd() + filename)
-
-    #     if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-    #         image_dir = os.getcwd() + "\\config\\" + "Image" + extension
-    #         os.rename(os.getcwd() + "\\" + filename, image_dir)
-
-    #     elif extension in [".mp3", ".wav"]:
-    #         sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
-    #         os.rename(os.getcwd() + "\\" + filename, sound_dir)
 
     # Crea el .txt de los animes suscritos
     with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
@@ -571,6 +558,9 @@ else:
     CHECK_BIENVENIDO = configurar_notificaciones()
 
 # Comprueba el directorio de la imagen y el sonido
+
+sound_dir = "" # Variable en blanco por si no se encuentra un sonido
+
 for filename in os.listdir(os.getcwd() + "\\config\\"):
 
     name, extension = os.path.splitext(os.getcwd() + "\\config\\" + filename)
