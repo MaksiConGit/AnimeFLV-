@@ -53,43 +53,67 @@ def configurar_notificaciones():
     input("\n\nPrimero que nada, vamos a personalizar el programa"
           " para que tengas una experiencia única."
           "\n\nPresione ENTER para continuar.")
-
-    print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
-    print("\n\nEsta imagen se mostrará junto con"
-          "el nombre del anime y el número del nuevo capítulo.")
-
-    input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
-          "\n\n2. Pega esa imagen en la carpeta del programa."
-          "\n\n3. Presione ENTER cuando esté listo.")
-
-    print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
-    print("\n\nEste sonido debe ser corto, puede ser una parte de "
-          "una canción o un simple sonido de notificación.")
-    print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
-          "\n\n2. Pega ese sonido en la carpeta del programa."
-          "\n\n3. Presione ENTER cuando esté listo.")
-    print("\n\nIMPORTANTE:\n\n"
-          "Si desea el sonido de notificación predeterminado de Windows, "
-          "no haga ningún cambio, únicamente presione ENTER.\n")
-
-    input()
-
+    
     # Se crea la carpeta
     if not os.path.exists(os.getcwd() + "\\config\\"):
         os.makedirs("config")
+    
+    image_dir = ""
 
+    while image_dir == "":
+
+        print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
+        print("\n\nEsta imagen se mostrará junto con"
+          "el nombre del anime y el número del nuevo capítulo.")
+
+        input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
+            "\n\n2. Pega esa imagen en la carpeta del programa."
+            "\n\n3. Presione ENTER cuando esté listo.")
+        
+        for filename in os.listdir(os.getcwd()):
+
+            name, extension = os.path.splitext(os.getcwd() + filename)
+
+            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+                image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+                os.rename(os.getcwd() + "\\" + filename, image_dir)
+
+    sound_dir = ""
+
+    print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
+    print("\n\nEste sonido debe ser corto, puede ser una parte de "
+        "una canción o un simple sonido de notificación.")
+    print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
+        "\n\n2. Pega ese sonido en la carpeta del programa."
+        "\n\n3. Presione ENTER cuando esté listo.")
+    print("\n\nIMPORTANTE:\n\n"
+        "Si desea el sonido de notificación predeterminado de Windows, "
+        "no haga ningún cambio, únicamente presione ENTER.\n")
+    
+    input()
+    
     # Mueve la imagen y el sonido a la nueva carpeta
     for filename in os.listdir(os.getcwd()):
 
         name, extension = os.path.splitext(os.getcwd() + filename)
 
-        if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-            image_dir = os.getcwd() + "\\config\\" + "Image" + extension
-            os.rename(os.getcwd() + "\\" + filename, image_dir)
-
-        elif extension in [".mp3", ".wav"]:
+        if extension in [".mp3", ".wav"]:
             sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
             os.rename(os.getcwd() + "\\" + filename, sound_dir)
+
+
+    # # Mueve la imagen y el sonido a la nueva carpeta
+    # for filename in os.listdir(os.getcwd()):
+
+    #     name, extension = os.path.splitext(os.getcwd() + filename)
+
+    #     if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+    #         image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+    #         os.rename(os.getcwd() + "\\" + filename, image_dir)
+
+    #     elif extension in [".mp3", ".wav"]:
+    #         sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
+    #         os.rename(os.getcwd() + "\\" + filename, sound_dir)
 
     # Crea el .txt de los animes suscritos
     with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:

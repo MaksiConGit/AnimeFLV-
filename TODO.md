@@ -6,13 +6,15 @@ Project Description
 
 ### Todo
 
+- [ ] Arreglar error con el sonido cuando elegís el predeterminado de Windows  
+- [ ] Poner colores en donde falte  
 
 ### In Progress
 
-- [ ] Poner colores en donde falte  
 
 ### Done ✓
 
+- [x] En la configuración. no dejar avanzar al usuario al siguiente paso si no puso lo que se le pide  
 - [x] Quitar líneas de prueba que había puesto  
 - [x] Corregir error con la variable image_dir, cuando se compila el script, no está asociado con un valor  
 - [x] Ordenar el código  
