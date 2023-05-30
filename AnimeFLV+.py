@@ -183,9 +183,9 @@ def barra_de_carga():
 
     print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
           "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
-    
+
     _, mostrar_lista_suscritos, _ = lista_animes_suscritos()
-    
+
     print(mostrar_lista_suscritos)
 
 
@@ -261,7 +261,7 @@ def lista_animes_vistos():
         num_animes_vistos = len(seen_animes_txt) // 3
 
     mostrar_lista_vistos = ("\n\n" + Style.RESET_ALL + Back.LIGHTWHITE_EX + Fore.LIGHTRED_EX +
-                            "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+                            "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n\n")
 
     animes_vistos = []
 
@@ -498,7 +498,16 @@ class IconThread(threading.Thread):
 
     def run(self):
 
-        image = Image.open(os.getcwd() + "\\Icons\\icon4.jpg")
+
+        # Mueve la imagen y el sonido a la nueva carpeta
+        for filename in os.listdir(os.getcwd() + "\\config\\"):
+
+            name, extension = os.path.splitext(os.getcwd() + "\\config\\" + filename)
+
+            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+                image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+
+        image = Image.open(image_dir)
 
         # Creamos el menú para el ícono
         menu = pystray.Menu(
@@ -508,11 +517,6 @@ class IconThread(threading.Thread):
         global icon
         icon = pystray.Icon("Nombre del ícono", image, menu=menu)
         icon.run()
-
-
-# Iniciamos el ícono en un hilo secundario
-icon_thread = IconThread()
-icon_thread.start()
 
 
 # Declararciones
@@ -534,12 +538,19 @@ print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
       "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
 
 
+print(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt")
+
+time.sleep(10)
+
 # Comprueba si ya se configuró el script
 if os.path.exists(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"):
 
     MOSTRAR_OPCIONES, opciones = comprobar_suscripciones()
 
 else:
+
+    for filename in os.listdir(os.getcwd() + "\\config\\"):
+        print(filename)
 
     CHECK_BIENVENIDO = configurar_notificaciones()
 
@@ -550,9 +561,14 @@ for filename in os.listdir(os.getcwd() + "\\config\\"):
 
     if extension in [".jpg", ".jpeg", ".png", ".gif"]:
         image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+        
+        # Iniciamos el ícono en un hilo secundario
+        icon_thread = IconThread()
+        icon_thread.start()
 
     elif extension in [".mp3", ".wav"]:
         sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
+
 
 
 # Obtener información del anime suscrito
@@ -760,7 +776,8 @@ while True:
 
                     # Actualiza la información del bloc de notas
                     with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
-                        suscribed_animes.writelines(line.encode('utf-8') for line in new_suscribed_animes)
+                        suscribed_animes.writelines(line.encode(
+                            'utf-8') for line in new_suscribed_animes)
 
                     animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
@@ -801,7 +818,7 @@ while True:
         if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
             input("\n\nPresione ENTER para continuar.\n")
             continue
-        
+
         barra_de_carga()
 
         print("\n\n" + Fore.LIGHTBLACK_EX +

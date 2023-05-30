@@ -9,11 +9,13 @@ Project Description
 
 ### In Progress
 
-- [ ] Probar el script y corregir errores  
-- [ ] Ordenar el código  
+- [ ] Poner colores en donde falte  
 
 ### Done ✓
 
+- [x] Corregir error con la variable image_dir, cuando se compila el script, no está asociado con un valor  
+- [x] Ordenar el código  
+- [x] Probar el script y corregir errores  
 - [x] Corrección de error que no salía la pantalla de carga cuando buscaba nuevo capítulo después de la primera vez  
 - [x] Verificar si ya habías visto un anime finalizado  
 - [x] Actualizar las listas en la opción 1 y 3 a través del nuevo retorno de los diccionarios.  
