@@ -537,20 +537,12 @@ colorama.init(autoreset=True)
 print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
       "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
 
-
-print(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt")
-
-time.sleep(10)
-
 # Comprueba si ya se configuró el script
 if os.path.exists(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"):
 
     MOSTRAR_OPCIONES, opciones = comprobar_suscripciones()
 
 else:
-
-    for filename in os.listdir(os.getcwd() + "\\config\\"):
-        print(filename)
 
     CHECK_BIENVENIDO = configurar_notificaciones()
 

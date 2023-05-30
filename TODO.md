@@ -13,6 +13,7 @@ Project Description
 
 ### Done ✓
 
+- [x] Quitar líneas de prueba que había puesto  
 - [x] Corregir error con la variable image_dir, cuando se compila el script, no está asociado con un valor  
 - [x] Ordenar el código  
 - [x] Probar el script y corregir errores  
