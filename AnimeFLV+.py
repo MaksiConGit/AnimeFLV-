@@ -48,28 +48,32 @@ def configurar_notificaciones():
     "Bienvenido a".
     """
 
-    print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
+    print("\n\n" + Style.BRIGHT + "¡¡Muchas gracias por probar mis proyectos!!")
 
-    input("\n\nPrimero que nada, vamos a personalizar el programa"
+    input("\n\nPrimero que nada, vamos a " + Fore.RED + "per" + Fore.YELLOW + "so" +
+          Fore.GREEN + "na" + Fore.BLUE + "li" +
+          Fore.MAGENTA + "zar" + Fore.RESET + " el programa"
           " para que tengas una experiencia única."
-          "\n\nPresione ENTER para continuar.")
-    
+          "\n\n\nPresione " + Fore.YELLOW + "ENTER" + Fore.RESET + " para continuar.")
+
     # Se crea la carpeta
     if not os.path.exists(os.getcwd() + "\\config\\"):
         os.makedirs("config")
-    
+
     image_dir = ""
 
     while image_dir == "":
 
-        print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
-        print("\n\nEsta imagen se mostrará junto con"
-          "el nombre del anime y el número del nuevo capítulo.")
+        print("\n\n" + Style.BRIGHT + Fore.BLUE + "Paso 1: " +
+              Fore.RESET + "Elije una imagen para las notificaciones.")
+        print("\n\nEsta imagen se mostrará junto con "
+              "el nombre del anime y el número del nuevo capítulo.")
 
-        input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales."
-            "\n\n2. Pega esa imagen en la carpeta del programa."
-            "\n\n3. Presione ENTER cuando esté listo.")
-        
+        input("\n\n" + Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Copia una imagen " + Fore.YELLOW + "(jpg, jpeg, png, gif)" + Fore.RESET + " de tus archivos locales."
+              "\n\n" + Fore.YELLOW + "2. " + Fore.RESET +
+              "Pega esa imagen en la carpeta del programa."
+              "\n\n" + Fore.GREEN + "3. " + Fore.RESET + "Presione " + Fore.YELLOW + "ENTER" + Fore.RESET + " cuando esté listo.")
+
         # Comprueba si hay una imagen y la mueve a la carpeta de configuración
         for filename in os.listdir(os.getcwd()):
 
@@ -81,18 +85,20 @@ def configurar_notificaciones():
 
     sound_dir = ""
 
-    print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
+    print("\n\n\n" + Style.BRIGHT + Fore.MAGENTA + "Paso 2: " +
+          Fore.RESET + "Elije un sonido para las notificaciones.")
     print("\n\nEste sonido debe ser corto, puede ser una parte de "
-        "una canción o un simple sonido de notificación.")
-    print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." +
-        "\n\n2. Pega ese sonido en la carpeta del programa."
-        "\n\n3. Presione ENTER cuando esté listo.")
-    print("\n\nIMPORTANTE:\n\n"
-        "Si desea el sonido de notificación predeterminado de Windows, "
-        "no haga ningún cambio, únicamente presione ENTER.\n")
-    
+          "una canción o un simple sonido de notificación.")
+    print("\n\n" + Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Copia un sonido " + Fore.YELLOW + "(.mp3, .wav)" + Fore.RESET + " de tus archivos locales."
+          "\n\n" + Fore.MAGENTA + "2. " + Fore.RESET +
+          "Pega ese sonido en la carpeta del programa."
+          "\n\n" + Fore.CYAN + "3. " + Fore.RESET + "Presione " + Fore.YELLOW + "ENTER" + Fore.RESET + " cuando esté listo.")
+    print("\n\n" + Style.BRIGHT + Fore.RED + "IMPORTANTE:\n\n" + Style.RESET_ALL + Fore.RESET +
+          "Si desea el sonido de notificación predeterminado de Windows, "
+          "no haga ningún cambio, únicamente presione ENTER.\n")
+
     input()
-    
+
     # Comprueba si hay un sonido y lo mueve a la carpeta de configuración
     for filename in os.listdir(os.getcwd()):
 
@@ -509,11 +515,11 @@ class IconThread(threading.Thread):
 
     def run(self):
 
-
         # Mueve la imagen y el sonido a la nueva carpeta
         for filename in os.listdir(os.getcwd() + "\\config\\"):
 
-            name, extension = os.path.splitext(os.getcwd() + "\\config\\" + filename)
+            name, extension = os.path.splitext(
+                os.getcwd() + "\\config\\" + filename)
 
             if extension in [".jpg", ".jpeg", ".png", ".gif"]:
                 image_dir = os.getcwd() + "\\config\\" + "Image" + extension
@@ -559,7 +565,7 @@ else:
 
 # Comprueba el directorio de la imagen y el sonido
 
-sound_dir = "" # Variable en blanco por si no se encuentra un sonido
+sound_dir = ""  # Variable en blanco por si no se encuentra un sonido
 
 for filename in os.listdir(os.getcwd() + "\\config\\"):
 
@@ -567,14 +573,13 @@ for filename in os.listdir(os.getcwd() + "\\config\\"):
 
     if extension in [".jpg", ".jpeg", ".png", ".gif"]:
         image_dir = os.getcwd() + "\\config\\" + "Image" + extension
-        
+
         # Iniciamos el ícono en un hilo secundario
         icon_thread = IconThread()
         icon_thread.start()
 
     elif extension in [".mp3", ".wav"]:
         sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
-
 
 
 # Obtener información del anime suscrito

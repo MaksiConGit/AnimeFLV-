@@ -6,13 +6,13 @@ Project Description
 
 ### Todo
 
-- [ ] Poner colores en donde falte  
 
 ### In Progress
 
 
 ### Done ✓
 
+- [x] Poner colores en donde falte  
 - [x] Arreglar error con el sonido cuando elegís el predeterminado de Windows  
 - [x] En la configuración. no dejar avanzar al usuario al siguiente paso si no puso lo que se le pide  
 - [x] Quitar líneas de prueba que había puesto  
