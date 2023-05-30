@@ -18,490 +18,801 @@ import threading
 import atexit
 from tqdm import tqdm
 from itertools import cycle
+import sys
 
 
-# Oculta la ventana de la consola
+def comprobar_suscripciones():
+    """
+    Comprueba si estás suscrito a al menos
+    un anime para empezar a buscar episodios
+    automáticamente. Retorna valores que
+    pueden mostrar o no las opciones.
+    """
 
-hidebool = False
+    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
 
-#Obtener la infomación de los nuevos capítulos
+    if animes_suscritos >= 1:  # Si estamos suscritos a al menos un anime, busca directamente
 
-urlaniflv = 'https://www3.animeflv.net/'
+        return False, "1"
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-}
-
-pedido = requests.get(urlaniflv, headers=headers)
-
-if pedido.status_code != 200:
-    print(Fore.RED + "La página de AnimeFLV está caída, inténtelo más tarde")
-
-html = pedido.text
-
-soup = BeautifulSoup(html, "html.parser")
-
-nombres = soup.find_all('strong', class_='Title')
-capitulos = soup.find_all('span', class_='Capi')
+    return True, None
 
 
-#Creación de una lista con los nombres y el número del capítulo
+def configurar_notificaciones():
+    """
+    El usuario configura el script. Se crea
+    una carpeta y se mueven el sonido y la
+    imagen a la misma, también se crean los
+    .txt en esta carpeta para ordenar todo.
+    Retorna True para no volver a mostrar el
+    "Bienvenido a".
+    """
 
-#lista_concatenada = []
+    print("\n\n" + Style.BRIGHT + "¡¡Muchas gracias por probar mis proyectos!!")
 
-#for i in range(len(nombres)):
- #   nombre = nombres[i].text
-  #  capitulo = capitulos[i].text
-   # texto_concatenado = nombre + ' ' + capitulo
-    #lista_concatenada.append(texto_concatenado)
+    input("\n\nPrimero que nada, vamos a " + Fore.RED + "per" + Fore.YELLOW + "so" +
+          Fore.GREEN + "na" + Fore.BLUE + "li" +
+          Fore.MAGENTA + "zar" + Fore.RESET + " el programa"
+          " para que tengas una experiencia única."
+          "\n\n\nPresione " + Fore.YELLOW + "ENTER" + Fore.RESET + " para continuar.")
 
+    # Se crea la carpeta
+    if not os.path.exists(os.getcwd() + "\\config\\"):
+        os.makedirs("config")
 
-def listaanimes(): #Mostrar la lista de animes suscritos
+    image_dir = ""
 
-    with open(txtdir, "r", encoding="utf-8") as animesemision:
-        animesemisiontxt = animesemision.readlines()
-        suscripciones = len(animesemisiontxt) // 3
+    while image_dir == "":
 
-    print("\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n")
+        print("\n\n" + Style.BRIGHT + Fore.BLUE + "Paso 1: " +
+              Fore.RESET + "Elije una imagen para las notificaciones.")
+        print("\n\nEsta imagen se mostrará junto con "
+              "el nombre del anime y el número del nuevo capítulo.")
 
-    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
+        input("\n\n" + Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Copia una imagen " + Fore.YELLOW + "(jpg, jpeg, png, gif)" + Fore.RESET + " de tus archivos locales."
+              "\n\n" + Fore.YELLOW + "2. " + Fore.RESET +
+              "Pega esa imagen en la carpeta del programa."
+              "\n\n" + Fore.GREEN + "3. " + Fore.RESET + "Presione " + Fore.YELLOW + "ENTER" + Fore.RESET + " cuando esté listo.")
 
-    for i in range(suscripciones):
-        color = next(colors)
-        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesemisiontxt[i * 3].strip() + Style.NORMAL + Fore.YELLOW + " | " + Style.BRIGHT + Fore.BLUE + animesemisiontxt[(i * 3) + 1].strip())
+        # Comprueba si hay una imagen y la mueve a la carpeta de configuración
+        for filename in os.listdir(os.getcwd()):
 
-    if suscripciones < 1: #Confirma si estás suscrito a algún anime
-        print(Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n¡Suscríbete a uno para empezar a recibir notificaciones!")
+            name, extension = os.path.splitext(os.getcwd() + filename)
 
+            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+                image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+                os.rename(os.getcwd() + "\\" + filename, image_dir)
 
-def listavistos():
+    sound_dir = ""
 
-    with open(os.getcwd() + "\\config\\AnimesVistos.txt", "r", encoding="utf-8") as animesvistos:
-        animesvistostxt = animesvistos.readlines()
-        numanimesvistos = len(animesvistostxt) // 3
+    print("\n\n\n" + Style.BRIGHT + Fore.MAGENTA + "Paso 2: " +
+          Fore.RESET + "Elije un sonido para las notificaciones.")
+    print("\n\nEste sonido debe ser corto, puede ser una parte de "
+          "una canción o un simple sonido de notificación.")
+    print("\n\n" + Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Copia un sonido " + Fore.YELLOW + "(.mp3, .wav)" + Fore.RESET + " de tus archivos locales."
+          "\n\n" + Fore.MAGENTA + "2. " + Fore.RESET +
+          "Pega ese sonido en la carpeta del programa."
+          "\n\n" + Fore.CYAN + "3. " + Fore.RESET + "Presione " + Fore.YELLOW + "ENTER" + Fore.RESET + " cuando esté listo.")
+    print("\n\n" + Style.BRIGHT + Fore.RED + "IMPORTANTE:\n\n" + Style.RESET_ALL + Fore.RESET +
+          "Si desea el sonido de notificación predeterminado de Windows, "
+          "no haga ningún cambio, únicamente presione ENTER.\n")
 
-    print("\n\n" + Style.RESET_ALL + Back.LIGHTWHITE_EX + Fore.LIGHTRED_EX + "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n")
+    input()
 
-    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
+    # Comprueba si hay un sonido y lo mueve a la carpeta de configuración
+    for filename in os.listdir(os.getcwd()):
 
-    for i in range(numanimesvistos):
-        color = next(colors)
-        print(Style.BRIGHT + color + str(i + 1) + ". " + Fore.WHITE + animesvistostxt[i * 3].strip() + Style.NORMAL + Fore.YELLOW + " | " + Fore.LIGHTBLUE_EX + animesvistostxt[(i * 3) + 1].strip())
+        name, extension = os.path.splitext(os.getcwd() + filename)
 
-    if numanimesvistos < 1: #Confirma si viste algún anime
-        print(Fore.LIGHTBLACK_EX + "No viste ningún anime.\n¡Cuando finalice un anime suscrito, vendrá aquí!\nTIP: Puedes suscribirte a animes finalizados")
+        if extension in [".mp3", ".wav"]:
+            sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
+            os.rename(os.getcwd() + "\\" + filename, sound_dir)
 
+    # Crea el .txt de los animes suscritos
+    with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
+        pass
 
-def finalizar():
+    with open(SEEN_ANIMES_DIR, "wb") as seen_animes:
+        pass
 
-    with open(txtdir, "r", encoding="utf-8") as animesemision:
-        animesemisiontxt = animesemision.readlines()
-        suscripciones = len(animesemisiontxt) // 3
-
-    #Borra la información del anime
-    animesemisiontxt[(int(desus) - 1) * 3] = ""
-    animesemisiontxt[(int(desus) - 1) * 3 + 1] = ""
-    animesemisiontxt[(int(desus) - 1) * 3 + 2] = ""
-
-    with open(txtdir, "wb") as animesemision:
-        animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
-    
-    #Muestra la lista de animes
-    listaanimes()
-
-
-
-def buscaranimes():
-        
-        print(Fore.YELLOW + "\n\n¡Te notificaremos cuando se estrene un nuevo episodio!")
-
-        print("\n\nLa consola se esconderá en unos segundos...\n\nConsulta el ícono oculto para mostrar la consola.\n\n")
-
-        def progress_bar(progress, total):
-
-            percent = 100 * (progress/float(total))
-
-            bar = Fore.RED + "█" * int(percent) + "-" * (100 - int(percent))
-
-            if percent > 25:
-                bar = Fore.YELLOW + "█" * int(percent) + "-" * (100 - int(percent))
-
-                if percent > 50.0:
-                    bar = Fore.GREEN + "█" * int(percent) + "-" * (100 - int(percent))
-
-                if percent > 75.0:
-                    bar = Fore.BLUE + "█" * int(percent) + "-" * (100 - int(percent))
-
-                if percent >= 99.0:
-                    bar = Fore.MAGENTA + "█" * int(percent) + "-" * (100 - int(percent))
-
-            print(f"\r|{bar}| {percent:.2f}%", end="\r")
-
-        progress_bar(0, 100)
-        for i in range(100):
-            time.sleep(0.07)
-            progress_bar(i + 1, 100)
-
-        win32gui.ShowWindow(win32console.GetConsoleWindow(), win32con.SW_HIDE)
-        
-        os.system("cls")
-
-        print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
+    return True  # Confirma que ya se mostró el "Bienvenido a"
 
 
+def nuevos_capitulos():
+    """
+    Descripción de la función:
+
+    Obtiene la información de los nuevos capítulos
+    de la página AnimeFLV
+    """
+
+    url_anime_flv = 'https://www3.animeflv.net/'
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        'AppleWebKit/537.36 (KHTML, like Gecko)'
+        'Chrome/58.0.3029.110 Safari/537.3'
+    }
+
+    pedido = requests.get(url_anime_flv, headers=headers, timeout=5)
+
+    if pedido.status_code != 200:
+        print(Fore.RED + "La página de AnimeFLV está caída, inténtelo más tarde")
+
+    html = pedido.text
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    nombres = soup.find_all('strong', class_='Title')
+    capitulos = soup.find_all('span', class_='Capi')
+
+    return nombres, capitulos
+
+
+def barra_de_carga():
+    """
+    Descripción de la función:
+
+    Antes de empezar a buscar nuevos capítulos
+    de los animes suscritos, se informará al
+    usuario que se le notificará cuando esto pase,
+    además de darle instrucciones para volver 
+    a abrir la consola si se desea.
+    Paralelamente, se muestra una barra de carga
+    que indica cuánto falta para ocultar la consola.
+    """
+
+    print(Fore.YELLOW + "\n\n¡Te notificaremos cuando se estrene un nuevo episodio!\n\n"
+          "La consola se esconderá en unos segundos...\n\n"
+          "Consulta el ícono oculto para mostrar la consola.\n\n")
+
+    def progress_bar(progress, total):
+
+        percent = 100 * (progress/float(total))
+
+        if percent > 75.0:
+            barra_cargando = Fore.MAGENTA + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        elif percent > 50.0:
+            barra_cargando = Fore.BLUE + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        elif percent > 25:
+            barra_cargando = Fore.GREEN + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        elif percent >= 0:
+            barra_cargando = Fore.YELLOW + "█" * \
+                int(percent) + "-" * (100 - int(percent))
+
+        print(f"\r|{barra_cargando}| {percent:.2f}%", end="\r")
+
+    progress_bar(0, 100)
+    for porcentaje_de_barra in range(100):
+        time.sleep(0.07)
+        progress_bar(porcentaje_de_barra + 1, 100)
+
+    win32gui.ShowWindow(win32console.GetConsoleWindow(),
+                        win32con.SW_HIDE)  # Esconder la consola
+
+    os.system("cls")  # Limpiar la terminal
+
+    print("\n\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
+          "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
+
+    _, mostrar_lista_suscritos, _ = lista_animes_suscritos()
+
+    print(mostrar_lista_suscritos)
 
 
 def on_key_press(event):
-    
+    """
+    Descripción de la función:
+
+    Cancela la búsqueda de capítulos mediante
+    la captura de la tecla "enter".
+    """
+
     if event.name == 'enter':
         keyboard.unhook_all()  # Desactiva la captura de teclas
         print("\n" + Fore.LIGHTBLACK_EX + "Espere...")
-        global confirm
-        confirm = False
+        global CONFIRM
+        CONFIRM = False
+
+
+def lista_animes_suscritos():
+    """
+    Descripción de la función:
+
+    Abre el bloc de notas, toma la información
+    de los animes SUSCRITOS y los enumera en una lista.
+    Retorna la cantidad de animes suscritos.
+    """
+
+    with open(SUSCRIBED_ANIMES_DIR, "r", encoding="utf-8") as suscribed_animes:
+        suscribed_animes_txt = suscribed_animes.readlines()
+        suscripciones = len(suscribed_animes_txt) // 3
+
+    mostrar_lista_suscritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + \
+        "Lista de animes suscritos:" + Fore.RESET + Back.RESET + "\n\n"
+
+    animes = []
+
+    if suscripciones < 1:  # Comprueba si existe al menos un anime
+        mostrar_lista_suscritos += Fore.LIGHTBLACK_EX + "No estás suscrito a ningún anime.\n" + \
+            "¡Suscríbete a uno para empezar a recibir notificaciones!"
+
+        return suscripciones, mostrar_lista_suscritos, animes
+
+    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
+                   Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
+
+    for indice in range(suscripciones):
+        animes += [{"id": str(indice + 1),
+                    "nombre": suscribed_animes_txt[indice * 3].strip(),
+                    "episodio": suscribed_animes_txt[(indice * 3) + 1].strip(),
+                    "link": suscribed_animes_txt[(indice * 3) + 2].strip()}]
+
+    for anime in animes:
+        color = next(colors)
+        mostrar_lista_suscritos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "
+                                    + Fore.WHITE + anime["nombre"]
+                                    + Style.NORMAL + Fore.YELLOW + " | "
+                                    + Style.BRIGHT + Fore.BLUE + anime["episodio"])
+
+    return suscripciones, mostrar_lista_suscritos, animes
+
+
+def lista_animes_vistos():
+    """
+    Descripción de la función:
+
+    Abre el bloc de notas, toma la información
+    de los animes VISTOS y los enumera en una lista.
+    Retorna la cantidad de animes vistos.
+    """
+
+    with open(SEEN_ANIMES_DIR, "r", encoding="utf-8") as seen_animes:
+        seen_animes_txt = seen_animes.readlines()
+        num_animes_vistos = len(seen_animes_txt) // 3
+
+    mostrar_lista_vistos = ("\n\n" + Style.RESET_ALL + Back.LIGHTWHITE_EX + Fore.LIGHTRED_EX +
+                            "Lista de animes vistos:" + Fore.RESET + Back.RESET + Style.RESET_ALL + "\n\n")
+
+    animes_vistos = []
+
+    if num_animes_vistos < 1:  # Comprueba si existe al menos un anime
+
+        mostrar_lista_vistos += (Fore.LIGHTBLACK_EX + "No viste ningún anime.\n"
+                                 "¡Cuando finalice un anime suscrito, vendrá aquí!"
+                                 "\nTIP: Puedes suscribirte a animes finalizados")
+
+        return num_animes_vistos, mostrar_lista_vistos, animes_vistos
+
+    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
+                   Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
+
+    for indice in range(num_animes_vistos):
+        animes_vistos += [{"id": str(indice + 1),
+                           "nombre": seen_animes_txt[indice * 3].strip(),
+                           "episodio": seen_animes_txt[(indice * 3) + 1].strip(),
+                           "link": seen_animes_txt[(indice * 3) + 2].strip()}]
+
+    for anime in animes_vistos:
+
+        color = next(colors)
+
+        mostrar_lista_vistos += ("\n" + Style.BRIGHT + color + anime["id"] + ". "  # Enumera
+                                 + Fore.WHITE + anime["nombre"]  # Nombre
+                                 + Style.NORMAL + Fore.YELLOW + " | "  # Separador
+                                 + Fore.LIGHTBLUE_EX + anime["episodio"])  # Episodio
+
+    return num_animes_vistos, mostrar_lista_vistos, animes_vistos
+
+
+def borrar_anime_finalizado(anime_id_borrar):
+    """
+    Descripción de la función:
+
+    Comprueba si el anime finalizó,
+    si lo hizo, abre el bloc de notas y
+    actualiza la lista de animes suscritos,
+    al final muestra la misma lista actualizada.
+    Devuelve el mensaje de "Finalizado" si el
+    anime finalizó.
+    """
+
+    _, _, animes = lista_animes_suscritos()
+
+    new_suscribed_animes = []
+
+    for anime in animes:
+
+        if anime["id"] == anime_id_borrar:
+
+            # Limpiamos el link para transformarlo al de la página del anime
+            url_anime_subs = anime["link"]
+            url_anime_subs = url_anime_subs.replace("/ver/", "/anime/")
+            clean_url = url_anime_subs.rfind('-')
+            url_anime_subs = url_anime_subs[:clean_url]
+
+            # Toma la información de la página
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                'AppleWebKit/537.36 (KHTML, like Gecko)'
+                'Chrome/58.0.3029.110 Safari/537.3'
+            }
+            anime_subs_pedido = requests.get(
+                url_anime_subs, headers=headers, timeout=5)
+            anime_subs_html = anime_subs_pedido.text
+            anime_subs_soup = BeautifulSoup(anime_subs_html, "html.parser")
+            anime_susbs_estado = anime_subs_soup.find('span', class_='fa-tv')
+
+            msg_finalizado = ""
+
+            # Comprueba si finalizó
+            if anime_susbs_estado.text == "Finalizado":
+
+                msg_finalizado = " | Finalizado"  # Se agrega la esta información a la notificación
+
+                # Se actualiza la lista de animes vistos
+                with open(SEEN_ANIMES_DIR, 'ab') as seen_animes:
+                    seen_animes.write(anime["nombre"].encode('utf-8') +
+                                      b"\n" + anime["episodio"].encode('utf-8') +
+                                      b"\n" + url_anime_subs.encode('utf-8') + b"\n")
+
+                print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + anime["nombre"] + "!\n" +
+                      Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
+
+                sumar_anime_suscrito = False
+
+                _, mostrar_lista, _ = lista_animes_vistos()
+
+                print(mostrar_lista)
+
+            else:
+
+                sumar_anime_suscrito = True
+
+        else:
+
+            sumar_anime_suscrito = True
+
+        if sumar_anime_suscrito is True:
+
+            new_suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+    # Actualiza la información del bloc de notas
+    with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
+        suscribed_animes.writelines(line.encode(
+            'utf-8') for line in new_suscribed_animes)
+
+    return msg_finalizado
+
+
+def cerrar_script():
+    """
+    Descripción de la función:
+
+    Terminamos el hilo secundario antes de
+    cerrar el hilo principal.
+    """
+
+    icon.stop()
+    icon.update_menu()
+    icon_thread.join()
+    sys.exit()
+
+
+class Anime():
+
+    """
+    Descripción de la clase:
+
+    Tiene las características de un anime:
+    nombre, episodio, estado y link.
+    """
+
+    def get_info(self, urlnewanime):  # Obtener información a partir del link
+        """
+        Extrae la información del anime
+        """
+
+        if urlnewanime == "":
+            self.animecheck = "No ingresó nada"
+            return
+
+        # Comprobar si es un link de un capítulo, si lo es, lo tranforma al
+        # link de la página del anime
+        if "https://www3.animeflv.net/ver/" in urlnewanime:
+            urlnewanime = urlnewanime.replace("/ver/", "/anime/")
+            checklink = urlnewanime.rfind('-')
+            urlnewanime = urlnewanime[:checklink]
+
+        # Toma la información de la página
+        try:
+
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                'AppleWebKit/537.36 (KHTML, like Gecko)'
+                'Chrome/58.0.3029.110 Safari/537.3'
+            }
+
+            pedido = requests.get(urlnewanime, headers=headers, timeout=5)
+
+        except requests.exceptions.InvalidURL:
+            self.animecheck = "Link inválido"
+            return
+
+        html = pedido.text
+        newsoup = BeautifulSoup(html, "html.parser")
+
+        # Buscar nombre del anime
+        nombre = newsoup.find('h1', class_='Title')
+
+        # Buscar el número del último episodio
+        episodio = re.findall("var episodes = \[\[[\w-]*", html)
+
+        # Buscar el estado del anime
+        estado = newsoup.find('span', class_='fa-tv')
+
+        # Buscar el link del anime
+        urlnewanime = urlnewanime.replace("/anime/", "/ver/")
+
+        # Comprobar si el link es de un anime de AnimeFLV
+        if nombre is None or len(episodio) == 0:
+            self.animecheck = "Este link no pertenece a AnimeFLV"
+            return
+
+        # Le damos el valor a todas los atributos
+        self.nombre = nombre.text
+        self.episodio = episodio[0].replace("var episodes = [[", "")
+        self.estado = estado.text
+        self.link = urlnewanime + "-"
+
+        _, _, animes_vistos = lista_animes_vistos()
+
+        _, _, animes_suscritos = lista_animes_suscritos()
+
+        for anime_suscrito in animes_suscritos:
+
+            if anime_suscrito["nombre"] == self.nombre:
+                self.animecheck = "Ya estabas suscrito a este anime"
+
+        for anime_visto in animes_vistos:
+
+            if anime_visto["nombre"] == self.nombre:
+                self.animecheck = "Ya viste este anime"
+
+    def __init__(self):  # Inicializa la clase con sus atributos
+        """
+        Descripción del método
+
+        Se inicializa la clase y se declaran los atributos
+        del anime.
+        """
+
+        self.animecheck = None
+        self.nombre = None
+        self.episodio = None
+        self.link = None
+        self.estado = None
+
+
+class IconThread(threading.Thread):
+
+    """
+    Descripción de la clase:
+
+    Se crea un hilo secundario mediante el cual
+    se mostrará un ícono en los íconos
+    ocultos.
+    """
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+
+        # Mueve la imagen y el sonido a la nueva carpeta
+        for filename in os.listdir(os.getcwd() + "\\config\\"):
+
+            name, extension = os.path.splitext(
+                os.getcwd() + "\\config\\" + filename)
+
+            if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+                image_dir = os.getcwd() + "\\config\\" + "Image" + extension
+
+        image = Image.open(image_dir)
+
+        # Creamos el menú para el ícono
+        menu = pystray.Menu(
+            pystray.MenuItem("Mostrar",
+                             lambda: win32gui.ShowWindow(win32console.GetConsoleWindow(),
+                                                         win32con.SW_SHOW)))
+        global icon
+        icon = pystray.Icon("Nombre del ícono", image, menu=menu)
+        icon.run()
+
+
+# Declararciones
+SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
+SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
+
+CHECK_BIENVENIDO = False  # Control del "Bienvenido a", se muestra por defecto
+MOSTRAR_OPCIONES = True  # Control de aparación de las opciones en la primera búsqueda
+
+
+# Antes de cerrar el script
+# atexit.register(cerrar_script)
 
 
 colorama.init(autoreset=True)
 
 
-print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
+print("\n\n¡Bienvenido a " + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
+      "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL + "!")
 
-checklogo = False
+# Comprueba si ya se configuró el script
+if os.path.exists(os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"):
 
-global txtdir
-txtdir = os.getcwd() + "\\config\\DONTMODIFY.txt"
-global imagedir
-global sounddir
+    MOSTRAR_OPCIONES, opciones = comprobar_suscripciones()
 
-boolbuscar = False
+else:
 
+    CHECK_BIENVENIDO = configurar_notificaciones()
 
-#Crear el entorno para una correcta ejecución
+# Comprueba el directorio de la imagen y el sonido
 
-try:
-    with open(txtdir, "r", encoding="utf-8") as animesemision:
-        animesemisiontxt = animesemision.readlines()
-        suscripciones = len(animesemisiontxt) // 3
+sound_dir = ""  # Variable en blanco por si no se encuentra un sonido
 
-    imagedir = ""
-    sounddir = ""
+for filename in os.listdir(os.getcwd() + "\\config\\"):
 
-    for filename in os.listdir(os.getcwd() + "\\config\\"):
+    name, extension = os.path.splitext(os.getcwd() + "\\config\\" + filename)
 
-        name, extension = os.path.splitext(os.getcwd() + "\\config\\" + filename)
-        
-        if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-            imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-            os.rename(os.getcwd() + "\\config\\" + filename, imagedir)
+    if extension in [".jpg", ".jpeg", ".png", ".gif"]:
+        image_dir = os.getcwd() + "\\config\\" + "Image" + extension
 
-        if extension in [".mp3", ".wav"]:
-            sounddir = os.getcwd() + "\\config\\" + "Sound" + extension
-            os.rename(os.getcwd() + "\\config\\" + filename, sounddir)
+        # Iniciamos el ícono en un hilo secundario
+        icon_thread = IconThread()
+        icon_thread.start()
 
-    if suscripciones >= 1:
-
-        listaanimes()
-        buscaranimes()
-
-        boolbuscar = True
-        hidebool = False
-        opciones = "1"
-    
-        
-except:
-
-    print("\n\n¡¡Muchas gracias por apoyar mis proyectos!!")
-
-    input("\n\nPrimero que nada, vamos a personalizar el programa para que tengas una experiencia única.\n\nPresione ENTER para continuar.")
-
-    print("\n\n\nPaso 1: Elije una imagen para las notificaciones.")
-    print("\n\nEsta imagen se mostrará junto con el nombre del anime y el número del nuevo capítulo.")
-    input("\n\n1. Copia una imagen (jpg, jpeg, png, gif) de tus archivos locales." + "\n\n2. Pega esa imagen en la carpeta del programa.\n\n3. Presione ENTER cuando esté listo.")
-
-    print("\n\n\nPaso 2: Elije un sonido para las notificaciones.")
-    print("\n\nEste sonido debe ser corto, puede ser una parte de una canción o un simple sonido de notificación.")
-    print("\n\n1. Copia un sonido (.mp3, .wav) de tus archivos locales." + "\n\n2. Pega ese sonido en la carpeta del programa.\n\n3. Presione ENTER cuando esté listo.")
-    print("\n\nIMPORTANTE:\n\nSi desea el sonido de notificación predeterminado de Windows, no haga ningún cambio, únicamente presione ENTER.\n")
-    input()
-
-    try:
-        os.makedirs("config")
-    except:
-        None
-
-    imagedir = ""
-    sounddir = ""
-
-    for filename in os.listdir(os.getcwd()):
-
-        name, extension = os.path.splitext(os.getcwd() + filename)
-
-        if extension in [".jpg", ".jpeg", ".png", ".gif"]:
-            imagedir = os.getcwd() + "\\config\\" + "Image" + extension
-            os.rename(os.getcwd() + "\\" + filename, imagedir)
+    elif extension in [".mp3", ".wav"]:
+        sound_dir = os.getcwd() + "\\config\\" + "Sound" + extension
 
 
-        elif extension in [".mp3", ".wav"]:
-            sounddir = os.getcwd() + "\\config\\" + "Sound" + extension
-            os.rename(os.getcwd() + "\\" + filename, sounddir)
-            
-    with open(txtdir, "wb") as animesemision:
-        None
-
-    checklogo = True
-
-
-class IconThread(threading.Thread):
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-    
-    def run(self):
-        # Creamos la imagen para el ícono
-
-        image = Image.open(os.getcwd() + "\\Icons\\icon4.jpg")
-
-        # Creamos el menú para el ícono
-        menu = pystray.Menu(
-            pystray.MenuItem("Mostrar", lambda: win32gui.ShowWindow(win32console.GetConsoleWindow(), win32con.SW_SHOW)))
-        global icon
-        icon = pystray.Icon("Nombre del ícono", image, menu=menu)
-        icon.run()
-
-# Creamos el objeto de subproceso para el ícono
-icon_thread = IconThread()
-
-# Iniciamos el subproceso del ícono
-icon_thread.start()
-
-
-def cerrar():
-    icon.stop()
-    icon.update_menu()
-    icon_thread.join()
-    icon.update_menu()
-    exit()
-
-atexit.register(cerrar)
-
-#Obtener información del anime suscrito
+# Obtener información del anime suscrito
 
 while True:
 
-    if checklogo == True: #Mostrar el logo después de que se nos haya dado la bienvenida por primera vez
+    # Mostrar las opciones
 
-        print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
+    if CHECK_BIENVENIDO is True:  # Comprobar si ya se mostró el "Bienvenido a"
 
-    checklogo = True
+        print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT +
+              "Anime" + Fore.CYAN + "FLV+" + Fore.WHITE + Back.BLACK + Style.NORMAL)
 
-    if boolbuscar == False:
+    CHECK_BIENVENIDO = True  # Confirma que ya se mostró el "Bienvenido a"
 
-        opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: "+ Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" + 
-                        Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos episodios\n" + 
-                        Fore.YELLOW + "2. " + Fore.RESET + "Animes suscritos\n" + 
-                        Fore.GREEN + "3. " + Fore.RESET + "Animes finalizados\n" + 
-                        Fore.BLUE + "4. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
-                        Fore.MAGENTA + "5. " + Fore.RESET + "Salir\n\n")
-        
-    boolbuscar = False
+    if MOSTRAR_OPCIONES is True:
 
-    if opciones == "2":
-            
+        opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: " + Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" +
+                         Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos episodios\n" +
+                         Fore.YELLOW + "2. " + Fore.RESET + "Animes suscritos\n" +
+                         Fore.GREEN + "3. " + Fore.RESET + "Animes finalizados\n" +
+                         Fore.BLUE + "4. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
+                         Fore.MAGENTA + "5. " + Fore.RESET + "Salir\n\n")
+
+    MOSTRAR_OPCIONES = True
+
+    if opciones == "2":  # Animes suscritos
+
         while True:
 
-            print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX + Style.BRIGHT + "Animes " + Fore.CYAN + "suscritos")
+            print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX +
+                  Style.BRIGHT + "Animes " + Fore.CYAN + "suscritos")
 
-            opciones = input("\nSeleccione una opción | " + Fore.YELLOW + "Ejemplo: "+ Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" + 
-                    Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Suscribirse\n" + 
-                    Fore.GREEN + "2. " + Fore.RESET + "Desuscribirse\n" + 
-                    Fore.YELLOW + "3. " + Fore.RESET + "Lista de animes suscritos\n" + 
-                    Fore.RED + "4. " + Fore.RESET + "Volver\n\n")
+            opciones = input("\nSeleccione una opción | " + Fore.YELLOW +
+                             "Ejemplo: " + Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" +
+                             Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Suscribirse\n" +
+                             Fore.GREEN + "2. " + Fore.RESET + "Desuscribirse\n" +
+                             Fore.YELLOW + "3. " + Fore.RESET + "Lista de animes suscritos\n" +
+                             Fore.RED + "4. " + Fore.RESET + "Volver\n\n")
 
-            if opciones == "1": #Suscribirse
+            if opciones == "1":  # Suscribirse
 
-                inganim = "y"
+                INGRESAR_ANIME = "y"
 
-                while inganim == "y":
+                while INGRESAR_ANIME == "y":
 
-                    susbool = False
+                    print("\n\n" + Style.RESET_ALL + "Ingresar link del anime a " +
+                          Back.GREEN + "suscribirse" + Back.RESET + ": | " +
+                          Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX +
+                          "https://www3.animeflv.net/anime/one-piece-tv\n" +
+                          " "*51 + "https://www3.animeflv.net/ver/one-piece-tv-1056\n" + Fore.RESET)
 
-                    print("\n\n" + Style.RESET_ALL + "Ingresar link del anime a " + Back.GREEN + "suscribirse" + Back.RESET + ": | " 
-                        + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "https://www3.animeflv.net/anime/one-piece-tv\n" 
-                        + " "*51 + "https://www3.animeflv.net/ver/one-piece-tv-1056\n" + Fore.RESET)
-                    
-                    urlnewanime = input(Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada\n\n" + Fore.RESET)
+                    urlnewanime = input(
+                        Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada\n\n" + Fore.RESET)
 
-                    if urlnewanime == "":
-                        break
-                    
+                    # Código nuevo
+                    newanime = Anime()
+                    newanime.get_info(urlnewanime)
 
-                    #Comprobar si es un link de un capítulo
-                    try:
-                        checklink = re.findall("https://www3.animeflv.net/ver/", urlnewanime)
-                        if checklink[0] == "https://www3.animeflv.net/ver/": #Tranformar el link del capítulo a link del anime
-                            urlnewanime = urlnewanime.replace("/ver/", "/anime/")
-                            checklink = urlnewanime.rfind('-')
-                            urlnewanime = urlnewanime[:checklink]
-                    except:
-                        None
-                        
-                    #Toma la información de la página
-                    try:
-                        newpedido = requests.get(urlnewanime, headers=headers)
+                    if newanime.animecheck is not None:  # Verifica si hubo un error con el link
 
-                    except:
+                        if newanime.animecheck == "No ingresó nada":
 
-                        inganim = ""
+                            break
 
-                        print("\n\n" + Fore.RED + "Link inválido\n")
+                        if newanime.animecheck == "Link inválido":
 
-                        while inganim != "y" and inganim != "n":
-                            inganim = input("\n¿Desea ingresar un link? (y/n) ")
+                            print("\n\n" + Fore.RED + "Link inválido")
 
-                        continue
+                            INGRESAR_ANIME = ""
 
-                    newhtml = newpedido.text
-                    newsoup = BeautifulSoup(newhtml, "html.parser")
+                            while INGRESAR_ANIME not in ('y', 'n'):
+                                INGRESAR_ANIME = input(
+                                    "\n\n¿Desea ingresar un link? (y/n) ")
 
-                    #Buscar nombre del anime
-                    seminewnombre = newsoup.find('h1', class_='Title')
+                        elif newanime.animecheck == "Este link no pertenece a AnimeFLV":
 
-                    #Buscar el número del último episodio
-                    seminewcapitulo = re.findall("var episodes = \[\[[\w-]*", newhtml)
+                            print("\n\n" + Fore.RED +
+                                  "Este link no pertenece a AnimeFLV.\n")
 
-                    #Buscar el estado del anime
-                    finalizado = newsoup.find('span', class_='fa-tv')
+                            INGRESAR_ANIME = ""
 
+                            while INGRESAR_ANIME not in ('y', 'n'):
+                                INGRESAR_ANIME = input(
+                                    "\n¿Desea ingresar otro link? (y/n) ")
 
-                    if seminewnombre == None or len(seminewcapitulo) == 0: #Comprobar si el link es de un anime de AnimeFLV
+                        elif newanime.animecheck == "Ya estabas suscrito a este anime":
 
-                        print("\n\n" + Fore.RED + "Este link no pertenece a AnimeFLV.\n")
+                            print(
+                                "\n\n" + Fore.RED + "¡Ya estabas suscrito a " +
+                                newanime.nombre + "!")
 
-                        inganim = ""
+                            _, mostrar_lista, _ = lista_animes_suscritos()
 
-                        while inganim != "y" and inganim != "n":
-                            inganim = input("\n¿Desea ingresar otro link? (y/n) ")
-                
+                            print(mostrar_lista)
+
+                            input("\n\nPresione ENTER para continuar.\n")
+
+                        elif newanime.animecheck == "Ya viste este anime":
+
+                            print(
+                                "\n\n" + Fore.RED + "¡Ya viste " +
+                                newanime.nombre + "!")
+
+                            _, mostrar_lista, _ = lista_animes_vistos()
+
+                            print(mostrar_lista)
+
+                            input("\n\nPresione ENTER para continuar.\n")
+
                     else:
 
-                        newcapitulo = seminewcapitulo[0]
-                        newcapitulo = newcapitulo.replace("var episodes = [[", "")
+                        # Comprobar si el anime finalizó
+                        if newanime.estado == "Finalizado":
 
-                        newnombre = seminewnombre.text
+                            with open(SEEN_ANIMES_DIR, 'ab') as seen_animes:
+                                seen_animes.write(newanime.nombre.encode(
+                                    'utf-8') + b"\nEpisodio " + newanime.episodio.encode('utf-8') +
+                                    b"\n" + urlnewanime.encode('utf-8') + b"\n")
 
-                        with open(txtdir, "r", encoding="utf-8") as animesemision:
-                            animesemisiontxt = animesemision.readlines()
-                            suscripciones = len(animesemisiontxt) // 3
+                            print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " +
+                                  newanime.nombre + "!\n" +
+                                  Fore.YELLOW + "\nEl anime fue enviado a "
+                                  "la lista de animes finalizados.")
 
-                        for i in range(suscripciones): #Comprueba si ya estás suscrito
+                            _, mostrar_lista, _ = lista_animes_vistos()
 
-                            if newnombre == animesemisiontxt[i * 3].strip():
-                                
-                                susbool = True
-                                print("\n\n" + Fore.RED + "¡Ya estabas suscrito a " + newnombre + "!")
-                            
-                        if susbool == False:
-
-                            newlink = urlnewanime.replace("/anime/", "/ver/")
-                            newlink = newlink + "-"
-
-                        #Comprobar si el anime finalizó
-                        if finalizado.text == "Finalizado":
-
-                            with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
-                                animesvistos.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
-
-                            print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + newnombre + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados.")
-                        
-                            listavistos()
+                            print(mostrar_lista)
 
                         else:
 
-                            #Escribir la información en un archivo
-                            with open(txtdir, 'ab') as animesemision:
-                                animesemision.write(newnombre.encode('utf-8') + b"\nEpisodio " + newcapitulo.encode('utf-8') + b"\n" + newlink.encode('utf-8') + b"\n")
+                            # Escribir la información en un archivo
+                            with open(SUSCRIBED_ANIMES_DIR, 'ab') as suscribed_animes:
+                                suscribed_animes.write(newanime.nombre.encode(
+                                    'utf-8') + b"\nEpisodio " + newanime.episodio.encode('utf-8') +
+                                    b"\n" + newanime.link.encode('utf-8') + b"\n")
 
-                            print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Te suscribiste a " + newnombre + "!")
+                            print("\n\n" + Style.BRIGHT + Fore.GREEN +
+                                  "¡Te suscribiste a " + newanime.nombre + "!")
 
-                            hidebool = True #Aparece la pantalla de carga al buscar animes
-                        
-                            listaanimes()
+                            _, mostrar_lista, _ = lista_animes_suscritos()
 
-                        inganim = ""
-                        
-                        while inganim != "y" and inganim != "n":
-                            inganim = input("\n\n¿Desea suscribirse a otro anime? (y/n) ")
-                
-                print()
+                            print(mostrar_lista)
 
+                        INGRESAR_ANIME = ""
 
-            elif opciones == "2": #Desuscribirse
-                
-                inganim = "y"
+                        while INGRESAR_ANIME not in ('y', 'n'):
+                            INGRESAR_ANIME = input(
+                                "\n\n¿Desea suscribirse a otro anime? (y/n) ")
 
-                while inganim == "y":
+                print()  # Genera un espacio por estética
 
-                    with open(txtdir, "r", encoding="utf-8") as animesemision:
-                        animesemisiontxt = animesemision.readlines()
-                        suscripciones = len(animesemisiontxt) // 3
+            elif opciones == "2":  # Desuscribirse
 
-                    print("\n\n" + Style.RESET_ALL + "Selecciona el anime a " + Back.RED + Fore.WHITE + "desuscribirse" + Back.RESET + Fore.RESET + ": | " 
-                        + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
-                    
-                    if suscripciones < 1: #Confirma si estás suscrito a algún anime
-                        listaanimes()
+                INGRESAR_ANIME = "y"
+
+                while INGRESAR_ANIME == "y":
+
+                    print("\n\n" + Style.RESET_ALL + "Selecciona el anime a " +
+                          Back.RED + Fore.WHITE + "desuscribirse" + Back.RESET + Fore.RESET + ": | "
+                          + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
+
+                    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
+
+                    print(mostrar_lista)
+
+                    if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
                         input("\n\nPresione ENTER para continuar.\n")
                         break
-                    
-                    listaanimes()
 
-                    print("\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada")
-                    
-                    desus = input("\n")
+                    print("\n" + Fore.LIGHTBLACK_EX +
+                          "PARA CANCELAR: Presione ENTER sin ingresar nada")
 
-                    if desus == "":
+                    desuscripcion = input("\n")
+
+                    if desuscripcion == "":
                         break
 
-                    confirmdesus = False
-                    
-                    for i in range(suscripciones): #Confirma si lo ingresado es un índice de su lista
+                    CONFIRMAR_DESUSCRIPCION = False
 
-                        if desus == str(i + 1):
+                    # Confirma si lo ingresado es un índice de su lista
+                    for indice in range(animes_suscritos):
 
-                            confirmdesus = True
+                        if desuscripcion == str(indice + 1):
 
-                    if confirmdesus == False:
+                            CONFIRMAR_DESUSCRIPCION = True
+
+                    if CONFIRMAR_DESUSCRIPCION is False:
                         continue
 
-                    print("\n\n" + Style.BRIGHT + Fore.RED + "¡Te desuscribiste de " + animesemisiontxt[(int(desus) - 1) * 3].strip() + "!")
+                    _, _, animes = lista_animes_suscritos()
 
+                    new_suscribed_animes = []
 
-                    #Borra la información del anime
-                    animesemisiontxt[(int(desus) - 1) * 3] = ""
-                    animesemisiontxt[(int(desus) - 1) * 3 + 1] = ""
-                    animesemisiontxt[(int(desus) - 1) * 3 + 2] = ""
+                    # Realiza una lista nueva para actualizar la anterior
+                    for anime in animes:
+                        # Te muestra el anime al cual te desuscribiste
+                        if anime["id"] == desuscripcion:
+                            print("\n\n" + Style.BRIGHT + Fore.RED +
+                                  "¡Te desuscribiste de " + anime["nombre"] + "!")
 
-                    with open(txtdir, "wb") as animesemision:
-                        animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
-                    
-                    #Muestra la lista de animes
-                    listaanimes()
+                        else:  # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
 
-                    if suscripciones < 1: #Confirma si estás suscrito a algún anime
+                            new_suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+                    # Actualiza la información del bloc de notas
+                    with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
+                        suscribed_animes.writelines(line.encode(
+                            'utf-8') for line in new_suscribed_animes)
+
+                    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
+
+                    # Muestra la lista actualizada
+                    print(mostrar_lista)
+
+                    if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
                         input("\n\nPresione ENTER para continuar.\n")
                         break
-                    
-                    inganim = ""
-                        
-                    while inganim != "y" and inganim != "n":
 
-                        inganim = input("\n\n¿Desea desuscribirse a otro anime? (y/n) ")
-                
+                    INGRESAR_ANIME = ""
+
+                    while INGRESAR_ANIME not in ('y', 'n'):
+
+                        INGRESAR_ANIME = input(
+                            "\n\n¿Desea desuscribirse a otro anime? (y/n) ")
+
                 print()
 
+            elif opciones == "3":  # Lista de animes suscritos
 
-            elif opciones == "3": #Lista de animes suscritos
+                _, mostrar_lista, _ = lista_animes_suscritos()
 
-                listaanimes()
+                print(mostrar_lista)
 
                 input("\n\nPresione ENTER para continuar.\n")
 
@@ -509,177 +820,166 @@ while True:
                 print()
                 break
 
+    elif opciones == "1":  # Buscar nuevos episodios
 
-    elif opciones == "1": #Buscar nuevos episodios
+        animes_suscritos, mostrar_lista, animes = lista_animes_suscritos()
 
-        #Confirma si estás suscrito a al menos un anime
+        print(mostrar_lista)
 
-        listaanimes()
-
-        if suscripciones < 1: #Confirma si estás suscrito a algún anime
+        if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
             input("\n\nPresione ENTER para continuar.\n")
             continue
 
-        if hidebool == True: #No mostrar la primera vez
-            buscaranimes()
-            listaanimes()
+        barra_de_carga()
 
-        hidebool = True
-        
-        print("\n\n" + Fore.LIGHTBLACK_EX + "Presione ENTER para continuar.")
-        
-        #Comparar información de los animes suscritos con la información de los nuevos capítulos
-        
-        confirm = True
+        print("\n\n" + Fore.LIGHTBLACK_EX +
+              "Presione ENTER para continuar.")  # Cancela la búsqueda
 
-        while True: 
+        # Comparar información de los animes suscritos con la información de los nuevos capítulos
 
-            with open(txtdir, "r", encoding="utf-8") as animesemision:
-                animesemisiontxt = animesemision.readlines()
-                suscripciones = len(animesemisiontxt) // 3
+        CONFIRM = True
 
-            for y in range(suscripciones): #Cantidad de animes suscritos
+        while True:
 
-                for x in range(len(nombres) - 1, -1, -1): #Cantidad de animes con nuevos capítulos a la inversa
+            animes_suscritos, mostrar_lista, animes = lista_animes_suscritos()
+            nombres, episodios = nuevos_capitulos()
 
-                    if animesemisiontxt[y * 3].strip() == nombres[x].text:
+            new_suscribed_animes = []
+            ACTUALIZAR_BLOCK = False
 
-                        if animesemisiontxt[y * 3 + 1].strip() < capitulos[x].text:
+            for anime in animes:
 
-                            animesemisiontxt[y * 3 + 1] = capitulos[x].text + "\n" #Se marca el capítulo como visto
+                for anime_nuevo_episodio in range(len(nombres) - 1, -1, -1):
 
-                            with open(txtdir, "wb",) as animesemision:
-                                animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) #Se reemplaza el último capítulo visto
+                    if anime["nombre"] == nombres[anime_nuevo_episodio].text:
 
-                            numulticap = capitulos[x].text.replace("Episodio ", "") #Obtenemos el número del último episodio
+                        if anime["episodio"] < episodios[anime_nuevo_episodio].text:
 
+                            anime["episodio"] = episodios[anime_nuevo_episodio].text
 
-                            #Comprobar si el anime finalizó
-                            urlnewanime = animesemisiontxt[y * 3 + 2]
-                            urlnewanime = urlnewanime.replace("/ver/", "/anime/")
-                            checklink = urlnewanime.rfind('-')
-                            urlnewanime = urlnewanime[:checklink]
-                                
-                            #Toma la información de la página
-                            newpedido = requests.get(urlnewanime, headers=headers)
-                            newhtml = newpedido.text
-                            newsoup = BeautifulSoup(newhtml, "html.parser")
-                            finalizado = newsoup.find('span', class_='fa-tv')
-                            
-                            msgfinalizado = ""
+                            ACTUALIZAR_BLOCK = True
 
-                            #Actualiza las listas
-                            if finalizado.text == "Finalizado":
+                            # Obtenemos el número del último episodio
+                            num_ulti_cap = anime["episodio"].replace(
+                                "Episodio ", "")
 
-                                msgfinalizado = " | Finalizado" #Se agrega en la notificación la finalización
+                            # Creamos el link del último capítulo
+                            ulti_cap_link = anime["link"] + num_ulti_cap
 
-                                #Se actualiza la lista de animes vistos
-                                with open(os.getcwd() + "\\config\\AnimesVistos.txt", 'ab') as animesvistos:
-                                    animesvistos.write(nombres[x].text.encode('utf-8') + b"\n" + capitulos[x].text.encode('utf-8') + b"\n" + urlnewanime.encode('utf-8') + b"\n")
-
-                                #Borra la información de la lista de animes suscritos
-                                animesemisiontxt[y * 3] = ""
-                                animesemisiontxt[y * 3 + 1] = ""
-                                animesemisiontxt[y * 3 + 2] = ""
-
-                                #Se actualiza la lista de animes suscritos
-                                with open(txtdir, "wb") as animesemision:
-                                    animesemision.writelines(line.encode('utf-8') for line in animesemisiontxt) 
-
-                                print("\n\n" + Style.BRIGHT + Fore.GREEN + "¡Viste " + nombres[x].text + "!\n" + Fore.YELLOW + "\nEl anime fue enviado a la lista de animes finalizados")
-
-                                listavistos()
-
-                            print("\n\n" + Fore.LIGHTBLACK_EX + "Presione ENTER para continuar.")
+                            MSG_ESTADO = borrar_anime_finalizado(anime["id"])
 
                             toast = Notification(app_id="AnimeFLV+",
-                                        title=nombres[x].text+ "!!", 
-                                        msg=capitulos[x].text + msgfinalizado, 
-                                        icon=imagedir,
-                                        duration="short", 
-                                        launch=animesemisiontxt[y * 3 + 2] + numulticap #Agregamos el último episodio al link
-                            )
-                            
-                            if sounddir == "":
+                                                 title=anime["nombre"] + "!!",
+                                                 msg=anime["episodio"] +
+                                                 MSG_ESTADO,
+                                                 icon=image_dir,
+                                                 duration="short",
+                                                 launch=ulti_cap_link
+                                                 )
+
+                            if sound_dir == "":
                                 toast.set_audio(audio.Default, loop=False)
                                 toast.show()
                             else:
                                 toast.show()
-                                playsound(sounddir)
+                                playsound(sound_dir)
+
+                new_suscribed_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+            if ACTUALIZAR_BLOCK is True:
+                with open(SUSCRIBED_ANIMES_DIR, "wb") as suscribed_animes:
+                    suscribed_animes.writelines(line.encode(
+                        'utf-8') for line in new_suscribed_animes)
 
             keyboard.on_press(on_key_press)
 
             for i in range(60):
-                if confirm == False:
-                    break # si se presiona una tecla, interrumpe el bucle
+                if CONFIRM is False:
+                    break  # Si se presiona ENTER, se interrumpe el bucle
                 time.sleep(1)
 
-            if confirm == False:
+            if CONFIRM is False:
                 input()
                 break
-    
-    elif opciones == "3": #Animes finalizados
 
-        listavistos() #Muestra la lista
+    elif opciones == "3":  # Animes finalizados
 
-        inganim = "y"
+        INGRESAR_ANIME = "y"
 
-        while inganim == "y": #Bucle para quitar los animes que quieras
+        while INGRESAR_ANIME == "y":
 
-            print("\n\n" + Fore.LIGHTBLACK_EX + "PARA QUITAR UN ANIME: Seleccione uno y presione ENTER." +
-                   "\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: Presione ENTER sin ingresar nada.")
+            print("\n\n" + Fore.LIGHTBLACK_EX + "PARA QUITAR UN ANIME: "
+                  "Seleccione uno y presione ENTER." +
+                  "\n" + Fore.LIGHTBLACK_EX + "PARA CANCELAR: "
+                  "Presione ENTER sin ingresar nada.")
 
-            #Obtiene la información de la lista
-            with open(os.getcwd() + "\\config\\AnimesVistos.txt", "r", encoding="utf-8") as animesvistos:
-                animesvistostxt = animesvistos.readlines()
-                numanimesvistos = len(animesvistostxt) // 3
-            
-            quitaranime = input("\n")
+            num_animes_vistos, mostrar_lista, animes_vistos = lista_animes_vistos()
 
-            if quitaranime == "":
+            print(mostrar_lista)
+
+            if num_animes_vistos < 1:  # Confirma si estás suscrito a algún anime
+                input("\n\nPresione ENTER para continuar.\n")
                 break
 
-            confirmquitar = False
-            
-            for i in range(numanimesvistos): #Confirma si lo ingresado es un índice de su lista
+            print("\n" + Fore.LIGHTBLACK_EX +
+                  "PARA CANCELAR: Presione ENTER sin ingresar nada")
 
-                if quitaranime == str(i + 1):
+            desuscripcion = input("\n")
 
-                    confirmdesus = True
+            if desuscripcion == "":
+                break
 
-            if confirmdesus == False: #Si no es un índice de la lista, se vuele a mostrar las opciones
+            CONFIRMAR_DESUSCRIPCION = False
+
+            # Confirma si lo ingresado es un índice de su lista
+            for indice in range(num_animes_vistos):
+
+                if desuscripcion == str(indice + 1):
+
+                    CONFIRMAR_DESUSCRIPCION = True
+
+            if CONFIRMAR_DESUSCRIPCION is False:
                 continue
 
-            print("\n\n" + Style.BRIGHT + Fore.RED + "¡Quitaste a " + animesvistostxt[(int(quitaranime) - 1) * 3].strip() + " de la lista de animes vistos!")
+            seen_animes_update = []
 
+            # Realiza una lista nueva para actualizar la anterior
+            for anime in animes_vistos:
+                # Te muestra el anime al cual te desuscribiste
+                if anime["id"] == desuscripcion:
+                    print("\n\n" + Style.BRIGHT + Fore.RED +
+                          "¡Quitaste a " + anime["nombre"] + " de la lista de animes vistos!")
 
-            #Borra la información del anime de la lista
-            animesvistostxt[(int(quitaranime) - 1) * 3] = ""
-            animesvistostxt[(int(quitaranime) - 1) * 3 + 1] = ""
-            animesvistostxt[(int(quitaranime) - 1) * 3 + 2] = ""
+                else:  # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
 
-            #Guarda los cambios
-            with open(os.getcwd() + "\\config\\AnimesVistos.txt", "wb") as animesvistos:
-                animesvistos.writelines(line.encode('utf-8') for line in animesvistostxt) 
-            
-            #Muestra la lista de animes
-            listavistos()
+                    seen_animes_update += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
 
-            if suscripciones < 1: #Confirma si estás suscrito a algún anime
-                input("\n\n")
+            # Actualiza la información del bloc de notas
+            with open(SEEN_ANIMES_DIR, "wb") as seen_animes:
+                seen_animes.writelines(line.encode(
+                    'utf-8') for line in seen_animes_update)
+
+            num_animes_vistos, mostrar_lista, _ = lista_animes_vistos()
+
+            # Muestra la lista actualizada
+            print(mostrar_lista)
+
+            if num_animes_vistos < 1:  # Confirma si estás suscrito a algún anime
+                input("\n\nPresione ENTER para continuar.\n")
                 break
-            
-            inganim = ""
-                
-            while inganim != "y" and inganim != "n":
 
-                inganim = input("\n\n¿Desea desuscribirse a otro anime? (y/n) ")
-        
+            INGRESAR_ANIME = ""
+
+            while INGRESAR_ANIME not in ('y', 'n'):
+
+                INGRESAR_ANIME = input(
+                    "\n\n¿Desea quitar otro anime finalizado? (y/n) ")
+
         print()
 
+    elif opciones == "4":  # Abrir AnimeFLV en navegador
+        webbrowser.open(url="https://www3.animeflv.net/",
+                        new=0, autoraise=True)
 
-    elif opciones == "4": #Abrir AnimeFLV en navegador
-        webbrowser.open(url=urlaniflv, new=0, autoraise=True)
-
-    elif opciones == "5": #Salir
-        cerrar()
+    elif opciones == "5":  # Salir
+        cerrar_script()
