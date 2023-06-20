@@ -12,6 +12,7 @@ Project Description
 
 ### Done ✓
 
+- [x] Comparar episodios nuevos y episodios de la lista de manera númerica y no alfabética  
 - [x] Poner colores en donde falte  
 - [x] Arreglar error con el sonido cuando elegís el predeterminado de Windows  
 - [x] En la configuración. no dejar avanzar al usuario al siguiente paso si no puso lo que se le pide  

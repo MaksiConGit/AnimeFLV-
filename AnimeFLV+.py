@@ -853,7 +853,12 @@ while True:
 
                     if anime["nombre"] == nombres[anime_nuevo_episodio].text:
 
-                        if anime["episodio"] < episodios[anime_nuevo_episodio].text:
+                        num_anime_episodio = int(
+                            anime["episodio"].replace("Episodio ", ""))
+                        num_anime_ultimo_episodio = int(
+                            episodios[anime_nuevo_episodio].text.replace("Episodio ", ""))
+
+                        if num_anime_episodio < num_anime_ultimo_episodio:
 
                             anime["episodio"] = episodios[anime_nuevo_episodio].text
 
