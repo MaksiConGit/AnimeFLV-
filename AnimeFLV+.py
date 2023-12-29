@@ -601,8 +601,9 @@ while True:
                          Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos episodios\n" +
                          Fore.YELLOW + "2. " + Fore.RESET + "Animes suscritos\n" +
                          Fore.GREEN + "3. " + Fore.RESET + "Animes finalizados\n" +
-                         Fore.BLUE + "4. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
-                         Fore.MAGENTA + "5. " + Fore.RESET + "Salir\n\n")
+                         Fore.BLUE + "4. " + Fore.RESET + "Consultar lista de animes\n" +
+                         Fore.BLUE + "5. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
+                         Fore.MAGENTA + "6. " + Fore.RESET + "Salir\n\n")
 
     MOSTRAR_OPCIONES = True
 
@@ -982,7 +983,65 @@ while True:
 
         print()
 
-    elif opciones == "4":  # Abrir AnimeFLV en navegador
+    elif opciones == "4":  # Consultar lista de animes
+
+        opcion1 = input("1. Escribir animes\n2. Consultar animes")
+
+        if opcion1 == "1":
+
+            for pagina in range(1, 151):
+
+                url_anime_flv_browse = 'https://www3.animeflv.net/browse?page=' + str(pagina)
+
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                    'AppleWebKit/537.36 (KHTML, like Gecko)'
+                    'Chrome/58.0.3029.110 Safari/537.3'
+                }
+
+                pedido = requests.get(url_anime_flv_browse, headers=headers, timeout=5)
+
+                if pedido.status_code != 200:
+                    print(Fore.RED + "La página de AnimeFLV está caída o no existe esta página de animes, inténtelo más tarde")
+
+                html = pedido.text
+
+                soup = BeautifulSoup(html, "html.parser")
+
+                nombres = soup.find_all('h3', class_='Title')
+
+
+                # Crea el .txt de los animes suscrito
+
+                LISTA_ANIMES_DIR = os.getcwd() + "\\config\\LISTAANIMES.txt"
+                with open(LISTA_ANIMES_DIR, "a", encoding="utf-8") as lista_animes:
+
+                    # Consulta los animes de la primera página brother
+
+                    for nombre in nombres:
+
+                        lista_animes.write(nombre.text + "\n")
+
+        if opcion1 == "2":
+
+            LISTA_ANIMES_DIR = os.getcwd() + "\\config\\LISTAANIMES.txt"
+
+            # Lista para almacenar los nombres de animes
+            nombres_animes = []
+
+            # Leer el contenido del archivo y guardar cada línea en la lista
+            with open(LISTA_ANIMES_DIR, "r", encoding="utf-8") as archivo_animes:
+                lineas = archivo_animes.readlines()
+                for linea in lineas:
+                    nombres_animes.append(linea.strip())  # Elimina espacios en blanco y caracteres de nueva línea
+
+            # Contar los elementos en la lista
+            conteo_animes = len(nombres_animes)
+
+            print(f"El archivo contiene {conteo_animes} nombres de animes.")
+
+        
+    elif opciones == "5":  # Abrir AnimeFLV en navegador
         webbrowser.open(url="https://www3.animeflv.net/",
                         new=0, autoraise=True)
 
