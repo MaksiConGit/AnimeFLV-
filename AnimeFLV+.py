@@ -391,6 +391,49 @@ def borrar_anime_finalizado(anime_id_borrar):
     return msg_finalizado
 
 
+def lista_animes_favoritos():
+    """
+    Descripción de la función:
+
+    Abre el bloc de notas, toma la información
+    de los animes SUSCRITOS y los enumera en una lista.
+    Retorna la cantidad de animes suscritos.
+    """
+
+    with open(FAVORITES_ANIMES_DIR, "r", encoding="utf-8") as favorites_animes:
+        favorites_animes_txt = favorites_animes.readlines()
+        cantidad_favoritos = len(favorites_animes_txt) // 3
+
+    mostrar_lista_favoritos = "\n\n" + Back.LIGHTWHITE_EX + Fore.LIGHTGREEN_EX + \
+        "Lista de animes favoritos:" + Fore.RESET + Back.RESET + "\n\n"
+
+    animes_favoritos = []
+
+    if cantidad_favoritos < 1:  # Comprueba si existe al menos un anime
+        mostrar_lista_favoritos += Fore.LIGHTBLACK_EX + "No tienes ningún anime favorito.\n" + \
+            "¡Asigna uno como favorito para tener acceso rápido al siguiente capítulo!"
+
+        return cantidad_favoritos, mostrar_lista_favoritos, animes_favoritos
+
+    colors = cycle([Fore.RED, Fore.YELLOW, Fore.GREEN,
+                   Fore.BLUE, Fore.MAGENTA, Fore.CYAN])
+
+    for indice_favorito in range(cantidad_favoritos):
+        animes_favoritos += [{"id": str(indice_favorito + 1),
+                    "nombre": favorites_animes_txt[indice_favorito * 3].strip(),
+                    "episodio": favorites_animes_txt[(indice_favorito * 3) + 1].strip(),
+                    "link": favorites_animes_txt[(indice_favorito * 3) + 2].strip()}]
+
+    for anime_favorito in animes_favoritos:
+        color = next(colors)
+        mostrar_lista_favoritos += ("\n" + Style.BRIGHT + color + anime_favorito["id"] + ". "
+                                    + Fore.WHITE + anime_favorito["nombre"]
+                                    + Style.NORMAL + Fore.YELLOW + " | "
+                                    + Style.BRIGHT + Fore.BLUE + anime_favorito["episodio"])
+
+    return cantidad_favoritos, mostrar_lista_favoritos, animes_favoritos
+
+
 def cerrar_script():
     """
     Descripción de la función:
@@ -539,6 +582,7 @@ class IconThread(threading.Thread):
 # Declararciones
 SUSCRIBED_ANIMES_DIR = os.getcwd() + "\\config\\SUSCRIBEDANIMES.txt"
 SEEN_ANIMES_DIR = os.getcwd() + "\\config\\SEENANIMES.txt"
+FAVORITES_ANIMES_DIR = os.getcwd() + "\\config\\FAVORITESANIMES.txt"
 
 CHECK_BIENVENIDO = False  # Control del "Bienvenido a", se muestra por defecto
 MOSTRAR_OPCIONES = True  # Control de aparación de las opciones en la primera búsqueda
@@ -601,8 +645,9 @@ while True:
                          Style.BRIGHT + Fore.RED + "1. " + Fore.RESET + "Buscar nuevos episodios\n" +
                          Fore.YELLOW + "2. " + Fore.RESET + "Animes suscritos\n" +
                          Fore.GREEN + "3. " + Fore.RESET + "Animes finalizados\n" +
-                         Fore.BLUE + "4. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
-                         Fore.MAGENTA + "5. " + Fore.RESET + "Salir\n\n")
+                         Fore.BLUE + "4. " + Fore.RESET + "Favoritos\n" +
+                         Fore.BLUE + "5. " + Fore.RESET + "Abrir AnimeFLV en navegador\n" +
+                         Fore.MAGENTA + "6. " + Fore.RESET + "Salir\n\n")
 
     MOSTRAR_OPCIONES = True
 
@@ -982,9 +1027,227 @@ while True:
 
         print()
 
-    elif opciones == "4":  # Abrir AnimeFLV en navegador
+    elif opciones == "4":  # Favoritos
+
+        while True:
+
+            print("\n" + Fore.WHITE + Back.LIGHTBLACK_EX +
+                    Style.BRIGHT + "Animes " + Fore.CYAN + "suscritos")
+
+            opciones = input("\nSeleccione una opción | " + Fore.YELLOW +
+                                "Ejemplo: " + Fore.LIGHTBLACK_EX + "2" + Fore.RESET + "\n\n" +
+                                Style.BRIGHT + Fore.BLUE + "1. " + Fore.RESET + "Consultar lista\n" +
+                                Fore.GREEN + "2. " + Fore.RESET + "Añadir favoritos\n" +
+                                Fore.YELLOW + "3. " + Fore.RESET + "Quitar favoritos\n" +
+                                Fore.RED + "4. " + Fore.RESET + "Volver\n\n")
+            
+            if opciones == "1":  # Lista de animes favoritos
+
+                INGRESAR_ANIME = "y"
+
+                while INGRESAR_ANIME == "y":
+
+                    print("\n\n" + Style.RESET_ALL + "Selecciona el anime para ver el siguiente " +
+                            Back.RED + Fore.WHITE + "episodio" + Back.RESET + Fore.RESET + ": | "
+                            + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
+
+                    animes_favoritos, mostrar_lista_favoritos, _ = lista_animes_favoritos()
+
+                    print(mostrar_lista_favoritos)
+
+                    if animes_favoritos < 1:  # Confirma si tienes al menos un anime favorito
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+
+                    print("\n" + Fore.LIGHTBLACK_EX +
+                            "PARA CANCELAR: Presione ENTER sin ingresar nada")
+
+                    seleccionar_favorito = input("\n")
+
+                    if seleccionar_favorito == "":
+                        break
+
+                    CONFIRMAR_SELECCIONAR_FAVORITO = False
+
+                    # Confirma si lo ingresado es un índice de su lista
+                    for indice in range(animes_favoritos):
+
+                        if seleccionar_favorito == str(indice + 1):
+
+                            CONFIRMAR_SELECCIONAR_FAVORITO = True
+
+                    if CONFIRMAR_SELECCIONAR_FAVORITO is False:
+                        continue
+
+                    _, _, animes_favoritos = lista_animes_favoritos()
+
+                    new_favorites_animes = []
+
+                    # Busca el anime seleccionado
+                    for anime in animes_favoritos:
+                        # Abre el link del anime seleccionado
+                        if anime["id"] == seleccionar_favorito:
+                            webbrowser.open(url=f"{anime['link'] + '1'}",
+                                            new=0, autoraise=True)
+                            INGRESAR_ANIME = "n"
+
+                print()
+
+            elif opciones == "2":  # Añadir favoritos
+
+                INGRESAR_ANIME = "y"
+
+                while INGRESAR_ANIME == "y":
+
+                    print("\n\n" + Style.RESET_ALL + "Selecciona el anime a asignar como " +
+                          Back.RED + Fore.WHITE + "favorito" + Back.RESET + Fore.RESET + ": | "
+                          + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
+
+                    animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
+
+                    print(mostrar_lista)
+
+                    if animes_suscritos < 1:  # Confirma si estás suscrito a algún anime
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+
+                    print("\n" + Fore.LIGHTBLACK_EX +
+                          "PARA CANCELAR: Presione ENTER sin ingresar nada")
+
+                    seleccionar_favorito = input("\n")
+
+                    if seleccionar_favorito == "":
+                        break
+
+                    CONFIRMAR_SELECCIONAR_FAVORITO = False
+
+                    # Confirma si lo ingresado es un índice de su lista
+                    for indice in range(animes_suscritos):
+
+                        if seleccionar_favorito == str(indice + 1):
+
+                            CONFIRMAR_SELECCIONAR_FAVORITO = True
+
+                    if CONFIRMAR_SELECCIONAR_FAVORITO is False:
+                        continue
+
+                    _, _, animes = lista_animes_suscritos()
+
+                    favorites_anime_update = []
+
+                    # Realiza una lista nueva para actualizar la anterior
+                    for anime in animes:
+                        # Te muestra el anime al cual te desuscribiste
+                        if anime["id"] == seleccionar_favorito:
+
+                            favorites_anime_update += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+                            with open(FAVORITES_ANIMES_DIR, "ab") as favorites_animes:
+                                favorites_animes.writelines(line.encode(
+                                    'utf-8') for line in favorites_anime_update)
+
+
+                    animes_favoritos, mostrar_lista_favoritos, _ = lista_animes_favoritos()
+
+                    # Muestra la lista actualizada
+                    print(mostrar_lista_favoritos)
+
+                    if animes_favoritos < 1:  # Confirma si estás suscrito a algún anime
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+
+                    INGRESAR_ANIME = ""
+
+                    while INGRESAR_ANIME not in ('y', 'n'):
+
+                        INGRESAR_ANIME = input(
+                            "\n\n¿Desea asginar como favorito a otro anime? (y/n) ")
+
+                print()
+
+            elif opciones == "3":  # Quitar favoritos
+
+                INGRESAR_ANIME = "y"
+
+                while INGRESAR_ANIME == "y":
+
+                    print("\n\n" + Style.RESET_ALL + "Selecciona el anime a quitar de " +
+                            Back.RED + Fore.WHITE + "favoritos" + Back.RESET + Fore.RESET + ": | "
+                            + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
+
+                    animes_favoritos, mostrar_lista_favoritos, _ = lista_animes_favoritos()
+
+                    print(mostrar_lista_favoritos)
+
+                    if animes_favoritos < 1:  # Confirma si tienes al menos un anime favorito
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+
+                    print("\n" + Fore.LIGHTBLACK_EX +
+                            "PARA CANCELAR: Presione ENTER sin ingresar nada")
+
+                    seleccionar_favorito = input("\n")
+
+                    if seleccionar_favorito == "":
+                        break
+
+                    CONFIRMAR_SELECCIONAR_FAVORITO = False
+
+                    # Confirma si lo ingresado es un índice de su lista
+                    for indice in range(animes_favoritos):
+
+                        if seleccionar_favorito == str(indice + 1):
+
+                            CONFIRMAR_SELECCIONAR_FAVORITO = True
+
+                    if CONFIRMAR_SELECCIONAR_FAVORITO is False:
+                        continue
+
+                    _, _, animes_favoritos = lista_animes_favoritos()
+
+                    new_favorites_animes = []
+
+                    # Realiza una lista nueva para actualizar la anterior
+                    for anime in animes_favoritos:
+                        # Te muestra el anime al cual te desuscribiste
+                        if anime["id"] == seleccionar_favorito:
+                            print("\n\n" + Style.BRIGHT + Fore.RED +
+                                    "¡Quitaste de favoritos a " + anime["nombre"] + "!")
+
+                        else:  # Va desempaquetando las bibliotecas en una lista para actualizar el bloc de notas
+
+                            new_favorites_animes += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+                    # Actualiza la información del bloc de notas
+                    with open(FAVORITES_ANIMES_DIR, "wb") as favorites_animes:
+                        favorites_animes.writelines(line.encode(
+                            'utf-8') for line in new_favorites_animes)
+
+                    animes_favoritos, mostrar_lista_favoritos, _ = lista_animes_favoritos()
+
+                    # Muestra la lista actualizada
+                    print(mostrar_lista_favoritos)
+
+                    if animes_favoritos < 1:  # Confirma si estás suscrito a algún anime
+                        input("\n\nPresione ENTER para continuar.\n")
+                        break
+
+                    INGRESAR_ANIME = ""
+
+                    while INGRESAR_ANIME not in ('y', 'n'):
+
+                        INGRESAR_ANIME = input(
+                            "\n\n¿Desea quitar de favoritos a otro anime? (y/n) ")
+
+                print()
+
+            elif opciones == "4":
+                print()
+                break
+        
+    elif opciones == "5":  # Abrir AnimeFLV en navegador
         webbrowser.open(url="https://www3.animeflv.net/",
                         new=0, autoraise=True)
 
-    elif opciones == "5":  # Salir
+    elif opciones == "6":  # Salir
         cerrar_script()
