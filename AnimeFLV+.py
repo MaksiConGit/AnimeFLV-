@@ -1100,7 +1100,7 @@ while True:
                 while INGRESAR_ANIME == "y":
 
                     print("\n\n" + Style.RESET_ALL + "Selecciona el anime a asignar como " +
-                          Back.RED + Fore.WHITE + "favorito" + Back.RESET + Fore.RESET + ": | "
+                          Back.YELLOW + Fore.WHITE + "favorito" + Back.RESET + Fore.RESET + ": | "
                           + Fore.YELLOW + "Ejemplos: " + Fore.LIGHTBLACK_EX + "1")
 
                     animes_suscritos, mostrar_lista, _ = lista_animes_suscritos()
@@ -1131,30 +1131,42 @@ while True:
                     if CONFIRMAR_SELECCIONAR_FAVORITO is False:
                         continue
 
+                    _, _, animes_favoritos = lista_animes_favoritos()
+
                     _, _, animes = lista_animes_suscritos()
 
                     favorites_anime_update = []
+
+                    ANIME_FAVORITO_REPETIDO = False
 
                     # Realiza una lista nueva para actualizar la anterior
                     for anime in animes:
                         # Te muestra el anime al cual te desuscribiste
                         if anime["id"] == seleccionar_favorito:
 
-                            favorites_anime_update += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+                            for anime_favorito in animes_favoritos:
 
-                            with open(FAVORITES_ANIMES_DIR, "ab") as favorites_animes:
-                                favorites_animes.writelines(line.encode(
-                                    'utf-8') for line in favorites_anime_update)
+                                if anime["nombre"] == anime_favorito["nombre"]:
+                                    ANIME_FAVORITO_REPETIDO = True
+                                    print(Fore.RED + Style.BRIGHT + f"\nYa tienes a {anime['nombre']} como favorito" + Fore.RESET + Style.RESET_ALL)
+                                    break
 
+                            if ANIME_FAVORITO_REPETIDO is False:
+                                
+                                favorites_anime_update += anime["nombre"], "\n", anime["episodio"], "\n", anime["link"], "\n"
+
+                                with open(FAVORITES_ANIMES_DIR, "ab") as favorites_animes:
+                                    favorites_animes.writelines(line.encode(
+                                        'utf-8') for line in favorites_anime_update)
 
                     animes_favoritos, mostrar_lista_favoritos, _ = lista_animes_favoritos()
 
                     # Muestra la lista actualizada
                     print(mostrar_lista_favoritos)
 
-                    if animes_favoritos < 1:  # Confirma si estás suscrito a algún anime
+                    if ANIME_FAVORITO_REPETIDO is True:  # Confirma si estás suscrito a algún anime
                         input("\n\nPresione ENTER para continuar.\n")
-                        break
+                        continue
 
                     INGRESAR_ANIME = ""
 
